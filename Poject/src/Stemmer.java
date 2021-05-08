@@ -45,7 +45,7 @@ public class Stemmer {
     public Boolean Doubleconsonant(String x) {
         if (x.length() >= 2) // not sure must more than 2 or just 2 enough
         {
-            if (x.charAt(x.length() - 1) == x.charAt(x.length() - 2)) {
+          
                 if (!vowelwithindex(x, x.length() - 1)) {
                     if (!vowelwithindex(x, x.length() - 2)) {
                         return true;
@@ -54,21 +54,20 @@ public class Stemmer {
                         return false;
                 } else
                     return false;
-            } else
-                return false;
+           
         }
         return false;
     }
 
-    public Boolean endswithS(String x) /// (and similarly for the other letters). what does it mean? ies, ss???? or not
-    {
-        if (x.length() > 0) {
-            if (x.charAt(x.length() - 1) == 's')
-                return true;
+    // public Boolean endswithS(String x) /// (and similarly for the other letters). what does it mean? ies, ss???? or not
+    // {
+    //     if (x.length() > 0) {
+    //         if (x.charAt(x.length() - 1) == 's')
+    //             return true;
 
-        }
-        return false;
-    }
+    //     }
+    //     return false;
+    // }
 
     public int measure(String z) {
         String x = "";
@@ -179,7 +178,7 @@ public class Stemmer {
         // let us check
 
         Stemmer s = new Stemmer("SSES");
-        System.out.println(s.endswithS("sess"));
+        // System.out.println(s.endswithS("sess"));
         System.out.println(s.vowel("xox"));
         System.out.println(s.vowelwithindex("xox", 1));
         System.out.println(s.consonant("toy")); 
