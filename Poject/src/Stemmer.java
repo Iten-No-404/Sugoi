@@ -11,7 +11,7 @@ public class Stemmer {
     }
     public Boolean vowel(String x)
     {
-        if(x.indexOf("a")!=-1 && x.indexOf("e")!=-1 && x.indexOf("i")!=-1 && x.indexOf("o")!=-1 && x.indexOf("u")!=-1)
+        if(x.indexOf("a")!=-1 || x.indexOf("e")!=-1 || x.indexOf("i")!=-1 || x.indexOf("o")!=-1 || x.indexOf("u")!=-1)
         {
           return true;
         }
@@ -21,7 +21,7 @@ public class Stemmer {
     {
         if(index<0)
         return false;
-        if(x.charAt(index)!='a'||x.charAt(index)!='e' &&x.charAt(index)!='i' &&x.charAt(index)!='o' && x.charAt(index)!='u')
+        if(x.charAt(index)=='a'||x.charAt(index)=='e'  ||  x.charAt(index)=='i' || x.charAt(index)=='o' || x.charAt(index)=='u')
         {
           return true;
         }
@@ -30,37 +30,25 @@ public class Stemmer {
     }
     public Boolean consonant(String x)
     {
-        if(vowel(x))
-        return false;
-        else
+        
+        for(int i=0;i<x.length();i++)
         {
-          int index=  x.indexOf("y");
-                     if( index>0)
-                     {
-                         if(!vowelwithindex(x,index-1))
-                       {  while(index>0)
-                         {
-                            index=x.indexOf("y",index+1);
-                            if(index>0)
-                            {
-                               if(vowelwithindex(x,index-1))
-                               return false;
-
-                            }
-                         }
-                         return true;
-                        }
-
-
-                         else
-                         return false;
-                     }
-                    else
-                    {
-                        return true;
-                    }
-            
+            Boolean v=vowelwithindex(x, i);
+            if( v&& i+1==x.length() )
+            {
+                return false;
+            }
+            else if(v && i+1<x.length() && x.charAt(i+1)!='y')
+            {
+                return false;
+            }
         }
+        return true;
+         
+                 
+            
+        
+      
     }
         public Boolean Doubleconsonant(String x)
         {
@@ -145,10 +133,47 @@ public class Stemmer {
             return false;
 
         }
+        public String Step5_a(String x)
+        {   if(x.length()>=2)
+            {  String y=x.substring(0, x.length()-2);
+                int m=meausre(y);
+                if( m>1 && x.charAt(x.length()-1)=='e')
+                {
+                    return y;
+                }
+                else if(m==1 &&! endscvc(y) &&  x.charAt(x.length()-1)=='e')
+                {
+                    return y;
+
+                }
+           }
+            return x;
+        }
+        public String Step5_b(String x)
+        {
+            if(x.length()>=2)
+           { String y=x.substring(0, x.length()-2);
+              int m=meausre(x);
+               if(m>1 && Doubleconsonant(x) && x.charAt(x.length()-1)=='l')
+               {
+                    return y;
+               }
+             
+           }
+   
+            return x;
+
+        }
     
     public static void main(String argv[])
     {
-
+        // let us check
+        
+        Stemmer s=new Stemmer("SSES");
+        System.out.println(  s.endswithS("sess"));
+        System.out.println( s.vowel("xox"));
+        System.out.println(s.vowelwithindex("xox", 1));
+        System.out.println(s.consonant("toy")); /// confused
     }
     
     
