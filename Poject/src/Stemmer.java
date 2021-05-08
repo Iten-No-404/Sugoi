@@ -319,6 +319,19 @@ public class Stemmer {
       
         return x;
     }
+    public String [] Spliter(String text)
+    {
+                
+        String[] words = text.split("\\s+");
+        for (int i = 0; i < words.length; i++) {
+           
+            words[i] = words[i].replaceAll("[^\\w]", "");
+            // System.out.println(words[i]); for debugging
+        }
+        return words;
+    
+
+    }
     
     public static void main(String argv[]) {
         // let us check
@@ -391,6 +404,7 @@ public class Stemmer {
         System.out.println(s.Step3("electrical"));
         System.out.println(s.Step3("hopeful"));
         System.out.println(s.Step3("goodness"));
+        s.Spliter("In the rules below , examples of their application successful or otherwise , are given on the right in lower case. The algorithm now follows:");
     }
 
 }
