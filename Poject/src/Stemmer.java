@@ -176,6 +176,74 @@ public class Stemmer {
         return x;
 
     }
+    public String Step3(String x)
+    {
+        String y;
+        if(  x.endsWith("ative") || x.endsWith("ative"))
+        {
+            y =x.substring(0,x.length()-5);
+            if(measure(y)>0)
+            {
+                return y;
+            }
+
+        }
+        else if(x.endsWith("icate"))
+        {
+            y =x.substring(0,x.length()-5);
+            if(measure(y)>0)
+            {
+                y+="ic";
+                return y;
+            }
+        }
+        else if(x.endsWith("alize"))
+        {
+            y =x.substring(0,x.length()-5);
+            if(measure(y)>0)
+            {
+                y+="al";
+                return y;
+            }
+        }
+        else if(x.endsWith("iciti"))
+        {
+            y =x.substring(0,x.length()-5);
+            if(measure(y)>0)
+            {
+                y+="ic";
+                return y;
+            }
+        }
+        else if(x.endsWith("ical"))
+        {
+            y =x.substring(0,x.length()-4);
+            if(measure(y)>0)
+            {
+                y+="ic";
+                return y;
+            }
+        }
+        else if(x.endsWith("ness"))
+        {
+            y =x.substring(0,x.length()-4);
+            if(measure(y)>0)
+            {
+              
+                return y;
+            }
+        }
+        else if(x.endsWith("ful"))
+        {
+            y =x.substring(0,x.length()-3);
+            if(measure(y)>0)
+            {
+              
+                return y;
+            }
+        }
+        return x;
+    }
     public String Step4(String x)
     {
      
@@ -212,7 +280,7 @@ public class Stemmer {
         
         else if(x.endsWith("ion"))
         {
-            y =x.substring(0,x.length()-5);
+            y =x.substring(0,x.length()-3);
             if(measure(y)>1&& (y.endsWith("s") || y.endsWith("t")))
             {
                 return y;
@@ -236,7 +304,7 @@ public class Stemmer {
       
         return x;
     }
-
+    
     public static void main(String argv[]) {
         // let us check
 
@@ -267,6 +335,13 @@ public class Stemmer {
         System.out.println(s.Step4("homologous"));
         System.out.println(s.Step4("effective"));
         System.out.println(s.Step4("bowdlerize"));
+        System.out.println(s.Step3("triplicate"));
+        System.out.println(s.Step3("formative"));
+        System.out.println(s.Step3("formalize"));
+        System.out.println(s.Step3("electriciti"));
+        System.out.println(s.Step3("electrical"));
+        System.out.println(s.Step3("hopeful"));
+        System.out.println(s.Step3("goodness"));
     }
 
 }
