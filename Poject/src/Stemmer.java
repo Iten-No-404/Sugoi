@@ -180,16 +180,16 @@ public class Stemmer {
     {
      
         String y;
-      if(x.endsWith("al") || x.endsWith("er") || x.endsWith("ic")|| x.endsWith("ou"))
+        if(x.endsWith("ement"))
         {
-          y =x.substring(0,x.length()-2);
+            y =x.substring(0,x.length()-5);
             if(measure(y)>1)
             {
                 return y;
             }
 
         }
-        else if(x.endsWith("ance") ||x.endsWith("ence") || x.endsWith("able") || x.endsWith("ible") || x.endsWith("ment") )
+      else if(x.endsWith("ance") ||x.endsWith("ence") || x.endsWith("able") || x.endsWith("ible") || x.endsWith("ment") )
         {
             y =x.substring(0,x.length()-4);
             if(measure(y)>1)
@@ -209,15 +209,7 @@ public class Stemmer {
             }
 
         }
-        else if(x.endsWith("ement"))
-        {
-            y =x.substring(0,x.length()-5);
-            if(measure(y)>1)
-            {
-                return y;
-            }
-
-        }
+        
         else if(x.endsWith("ion"))
         {
             y =x.substring(0,x.length()-5);
@@ -227,6 +219,16 @@ public class Stemmer {
             }
 
         }
+        else if(x.endsWith("al") || x.endsWith("er") || x.endsWith("ic")|| x.endsWith("ou"))
+        {
+          y =x.substring(0,x.length()-2);
+            if(measure(y)>1)
+            {
+                return y;
+            }
+
+        }
+        
         
      
         
