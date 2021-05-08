@@ -194,145 +194,111 @@ public class Stemmer {
     public String Step3(String x)
     {
         String y;
-        if(  x.endsWith("ative") || x.endsWith("ative"))
         {
             y =x.substring(0,x.length()-5);
-            if(measure(y)>0)
-            {
+        if (x.endsWith("ative") || x.endsWith("ative")) {
                 return y;
             }
 
-        }
         else if(x.endsWith("icate"))
         {
             y =x.substring(0,x.length()-5);
             if(measure(y)>0)
-            {
-                y+="ic";
+        } else if (x.endsWith("icate")) {
                 return y;
             }
-        }
-        else if(x.endsWith("alize"))
         {
             y =x.substring(0,x.length()-5);
             if(measure(y)>0)
             {
-                y+="al";
+        } else if (x.endsWith("alize")) {
+            y = x.substring(0, x.length() - 5);
+            if (measure(y) > 0) {
+                y += "al";
                 return y;
             }
-        }
-        else if(x.endsWith("iciti"))
-        {
-            y =x.substring(0,x.length()-5);
             if(measure(y)>0)
-            {
-                y+="ic";
+        } else if (x.endsWith("iciti")) {
+            y = x.substring(0, x.length() - 5);
+            if (measure(y) > 0) {
+                y += "ic";
                 return y;
             }
-        }
         else if(x.endsWith("ical"))
         {
             y =x.substring(0,x.length()-4);
-            if(measure(y)>0)
-            {
-                y+="ic";
+            y = x.substring(0, x.length() - 4);
+            if (measure(y) > 0) {
+                y += "ic";
+                return y;
+            }
+        {
                 return y;
             }
         }
-        else if(x.endsWith("ness"))
-        {
-            y =x.substring(0,x.length()-4);
-            if(measure(y)>0)
-            {
-              
-                return y;
-            }
-        }
-        else if(x.endsWith("ful"))
-        {
-            y =x.substring(0,x.length()-3);
-            if(measure(y)>0)
-            {
-              
+        } else if (x.endsWith("ful")) {
                 return y;
             }
         }
         return x;
     }
-    public String Step4(String x)
-    {
-     
+
+    public String Step4(String x) {
+
         String y;
-        if(x.endsWith("ement"))
+        if (x.endsWith("ement")) {
+            y = x.substring(0, x.length() - 5);
+            if (measure(y) > 1) {
+                return y;
+            }
+
+        } else if (x.endsWith("ance") || x.endsWith("ence") || x.endsWith("able") || x.endsWith("ible")
+                || x.endsWith("ment")) {
+            y = x.substring(0, x.length() - 4);
+            if (measure(y) > 1) {
+                return y;
+            }
+
+        } else if (x.endsWith("ant") || x.endsWith("ent") || x.endsWith("ism") || x.endsWith("ate") || x.endsWith("iti")
+                || x.endsWith("ous") || x.endsWith("ive") || x.endsWith("ize"))
+
         {
-            y =x.substring(0,x.length()-5);
-            if(measure(y)>1)
-            {
+            y = x.substring(0, x.length() - 3);
+            if (measure(y) > 1) {
                 return y;
             }
 
         }
-      else if(x.endsWith("ance") ||x.endsWith("ence") || x.endsWith("able") || x.endsWith("ible") || x.endsWith("ment") )
-        {
-            y =x.substring(0,x.length()-4);
-            if(measure(y)>1)
-            {
+
+        else if (x.endsWith("ion")) {
+            y = x.substring(0, x.length() - 3);
+            if (measure(y) > 1 && (y.endsWith("s") || y.endsWith("t"))) {
+                return y;
+            }
+
+        } else if (x.endsWith("al") || x.endsWith("er") || x.endsWith("ic") || x.endsWith("ou")) {
+            y = x.substring(0, x.length() - 2);
+            if (measure(y) > 1) {
                 return y;
             }
 
         }
-        else if(x.endsWith("ant") || x.endsWith("ent") || x.endsWith("ism") || x.endsWith("ate") || x.endsWith("iti") || x.endsWith("ous")
-         || x.endsWith("ive") || x.endsWith("ize"))
 
-        {
-            y =x.substring(0,x.length()-3);
-            if(measure(y)>1)
-            {
-                return y;
-            }
-
-        }
-        
-        else if(x.endsWith("ion"))
-        {
-            y =x.substring(0,x.length()-3);
-            if(measure(y)>1&& (y.endsWith("s") || y.endsWith("t")))
-            {
-                return y;
-            }
-
-        }
-        else if(x.endsWith("al") || x.endsWith("er") || x.endsWith("ic")|| x.endsWith("ou"))
-        {
-          y =x.substring(0,x.length()-2);
-            if(measure(y)>1)
-            {
-                return y;
-            }
-
-        }
-        
-        
-     
-        
-       
-      
         return x;
     }
-    public String [] Spliter(String text)
-    {
-                
+
+    public String[] Spliter(String text) {
+
         String[] words = text.split("\\s+");
         for (int i = 0; i < words.length; i++) {
-           
+
             words[i] = words[i].replaceAll("[^\\w]", "");
             // System.out.println(words[i]); for debugging
         }
         return words;
-    
 
     }
-    
+
     public static void main(String argv[]) {
         // let us check
 
@@ -375,6 +341,29 @@ public class Stemmer {
         System.out.println(s.step1c("sky"));
 
         System.out.println("");
+        System.out.println(s.step2("relational"));
+        System.out.println(s.step2("conditional"));
+        System.out.println(s.step2("rational"));//Always produces wrong anwer NEEDS FIXING
+        System.out.println(s.step2("valenci"));
+        System.out.println(s.step2("hesitanci"));
+        System.out.println(s.step2("digitizer"));
+        System.out.println(s.step2("conformabli"));
+        System.out.println(s.step2("radicalli"));
+        System.out.println(s.step2("differentli"));
+        System.out.println(s.step2("vileli"));
+        System.out.println(s.step2("analogousli"));
+        System.out.println(s.step2("vietnamization"));
+        System.out.println(s.step2("predication"));
+        System.out.println(s.step2("operator"));
+        System.out.println(s.step2("feudalism"));
+        System.out.println(s.step2("decisiveness"));
+        System.out.println(s.step2("hopefulness"));
+        System.out.println(s.step2("callousness"));
+        System.out.println(s.step2("formaliti"));
+        System.out.println(s.step2("sensitiviti"));
+        System.out.println(s.step2("sensibiliti"));
+
+        System.out.println("");
         System.out.println(s.Step5_a("probate"));
         System.out.println(s.Step5_b("controll"));
         System.out.println(s.Step5_b("roll"));
@@ -404,7 +393,8 @@ public class Stemmer {
         System.out.println(s.Step3("electrical"));
         System.out.println(s.Step3("hopeful"));
         System.out.println(s.Step3("goodness"));
-        s.Spliter("In the rules below , examples of their application successful or otherwise , are given on the right in lower case. The algorithm now follows:");
+        s.Spliter(
+                "In the rules below , examples of their application successful or otherwise , are given on the right in lower case. The algorithm now follows:");
     }
 
 }
