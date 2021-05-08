@@ -191,57 +191,76 @@ public class Stemmer {
         return x;
 
     }
-    public String Step3(String x)
-    {
-        String y;
+ 
+        public String Step3(String x)
         {
-            y =x.substring(0,x.length()-5);
-        if (x.endsWith("ative") || x.endsWith("ative")) {
-                return y;
-            }
-
-        else if(x.endsWith("icate"))
-        {
-            y =x.substring(0,x.length()-5);
-            if(measure(y)>0)
-        } else if (x.endsWith("icate")) {
-                return y;
-            }
-        {
-            y =x.substring(0,x.length()-5);
-            if(measure(y)>0)
+            String y;
+            if(  x.endsWith("ative") || x.endsWith("ative"))
             {
-        } else if (x.endsWith("alize")) {
-            y = x.substring(0, x.length() - 5);
-            if (measure(y) > 0) {
-                y += "al";
-                return y;
+                y =x.substring(0,x.length()-5);
+                if(measure(y)>0)
+                {
+                    return y;
+                }
+    
             }
-            if(measure(y)>0)
-        } else if (x.endsWith("iciti")) {
-            y = x.substring(0, x.length() - 5);
-            if (measure(y) > 0) {
-                y += "ic";
-                return y;
+            else if(x.endsWith("icate"))
+            {
+                y =x.substring(0,x.length()-5);
+                if(measure(y)>0)
+                {
+                    y+="ic";
+                    return y;
+                }
             }
-        else if(x.endsWith("ical"))
-        {
-            y =x.substring(0,x.length()-4);
-            y = x.substring(0, x.length() - 4);
-            if (measure(y) > 0) {
-                y += "ic";
-                return y;
+            else if(x.endsWith("alize"))
+            {
+                y =x.substring(0,x.length()-5);
+                if(measure(y)>0)
+                {
+                    y+="al";
+                    return y;
+                }
             }
-        {
-                return y;
+            else if(x.endsWith("iciti"))
+            {
+                y =x.substring(0,x.length()-5);
+                if(measure(y)>0)
+                {
+                    y+="ic";
+                    return y;
+                }
             }
+            else if(x.endsWith("ical"))
+            {
+                y =x.substring(0,x.length()-4);
+                if(measure(y)>0)
+                {
+                    y+="ic";
+                    return y;
+                }
+            }
+            else if(x.endsWith("ness"))
+            {
+                y =x.substring(0,x.length()-4);
+                if(measure(y)>0)
+                {
+                  
+                    return y;
+                }
+            }
+            else if(x.endsWith("ful"))
+            {
+                y =x.substring(0,x.length()-3);
+                if(measure(y)>0)
+                {
+                  
+                    return y;
+                }
+            }
+            return x;
         }
-        } else if (x.endsWith("ful")) {
-                return y;
-            }
-        }
-        return x;
-    }
+    
 
     public String Step4(String x) {
 
