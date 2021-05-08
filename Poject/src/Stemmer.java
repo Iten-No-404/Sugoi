@@ -9,39 +9,41 @@ public class Stemmer {
       Word= x.toLowerCase();
       actualvalue=x;
     }
-    public Boolean vowel()
+    public Boolean vowel(String x)
     {
-        if(Word.indexOf("a")!=-1 && Word.indexOf("e")!=-1 && Word.indexOf("i")!=-1 && Word.indexOf("o")!=-1 && Word.indexOf("u")!=-1)
+        if(x.indexOf("a")!=-1 && x.indexOf("e")!=-1 && x.indexOf("i")!=-1 && x.indexOf("o")!=-1 && x.indexOf("u")!=-1)
         {
           return true;
         }
         return false;
     }
-    public Boolean vowelwithindex(int index)
+    public Boolean vowelwithindex(String x,int index)
     {
-        if(Word.charAt(index)!='a'||Word.charAt(index)!='e' &&Word.charAt(index)!='i' &&Word.charAt(index)!='o' && Word.charAt(index)!='u')
+        if(index<0)
+        return false;
+        if(x.charAt(index)!='a'||x.charAt(index)!='e' &&x.charAt(index)!='i' &&x.charAt(index)!='o' && x.charAt(index)!='u')
         {
           return true;
         }
         return false;
 
     }
-    public Boolean consonant()
+    public Boolean consonant(String x)
     {
-        if(vowel())
+        if(vowel(x))
         return false;
         else
         {
-          int index=  Word.indexOf("y");
+          int index=  x.indexOf("y");
                      if( index>0)
                      {
-                         if(!vowelwithindex(index-1))
+                         if(!vowelwithindex(x,index-1))
                        {  while(index>0)
                          {
-                            index=Word.indexOf("y",index+1);
+                            index=x.indexOf("y",index+1);
                             if(index>0)
                             {
-                               if(vowelwithindex(index-1))
+                               if(vowelwithindex(x,index-1))
                                return false;
 
                             }
@@ -60,14 +62,14 @@ public class Stemmer {
             
         }
     }
-        public Boolean Doubleconsonant()
+        public Boolean Doubleconsonant(String x)
         {
-            if(Word.length()>=2) // not sure must more than 2 or just 2 enough
+            if(x.length()>=2) // not sure must more than 2 or just 2 enough
             {
-              if(Word.charAt(Word.length()-1)==Word.charAt(Word.length()-2)) 
-               {if(!vowelwithindex(Word.length()-1))
+              if(x.charAt(x.length()-1)==x.charAt(x.length()-2)) 
+               {if(!vowelwithindex(x,x.length()-1))
                 {
-                    if(! vowelwithindex(Word.length()-2))
+                    if(! vowelwithindex(x,x.length()-2))
                     { 
                         return true;
 
@@ -84,15 +86,64 @@ public class Stemmer {
             }
             return false;
         }
-        public Boolean endswithS() ///(and similarly for the other letters). what does it mean?  ies, ss???? or not
+        public Boolean endswithS(String x) ///(and similarly for the other letters). what does it mean?  ies, ss???? or not
         {
-            if(Word.length()>0)
+            if(x.length()>0)
             {
-                if(Word.charAt(Word.length()-1)=='s')
+                if(x.charAt(x.length()-1)=='s')
                 return true;
           
             }
             return false;
+        }
+        public int meausre(String z)
+        {
+            String x="";
+             for(int i=0;i<z.length();i++)
+             {
+                 if(vowelwithindex(z,i) ||(z.charAt(i)=='y'&& i>0 && (vowelwithindex(z,i-1))))
+                 {
+                     x+="v";
+                 }
+                 else 
+                 {
+                           x+="c";
+                 }
+             }
+            
+             return x.split("cv", -1).length - 1;
+
+        }
+        public Boolean endscvc(String z)
+        {
+            if(z.length()>=3)
+            {
+                String x="";
+                for(int i=z.length()-3;i<z.length();i++)
+                {
+                    if(vowelwithindex(z,i) ||(z.charAt(i)=='y'&& i>0 && (vowelwithindex(z,i-1))))
+                    {
+                        x+="v";
+                    }
+                    else if(i==z.length()-3)
+                    {
+                              x+="c";
+                    }
+                    else if( z.charAt(i)!='w' && z.charAt(i)!='x' && z.charAt(i)!='y')
+                    {
+                        x+="c";
+                    }
+
+                }
+               if(x.equals("cvc") )
+               {
+                   return true;
+               }
+               
+
+            }
+            return false;
+
         }
     
     public static void main(String argv[])
