@@ -32,7 +32,7 @@ public class HTML {
        
       System.out.println( Jsoup.clean(doc.toString(), Whitelist.none()));
       
-
+  
        
     	System.out.print("00");
       Document D;
