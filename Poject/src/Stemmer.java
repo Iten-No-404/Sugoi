@@ -45,28 +45,29 @@ public class Stemmer {
     public Boolean Doubleconsonant(String x) {
         if (x.length() >= 2) // not sure must more than 2 or just 2 enough
         {
-          
-                if (!vowelwithindex(x, x.length() - 1)) {
-                    if (!vowelwithindex(x, x.length() - 2)) {
-                        return true;
 
-                    } else
-                        return false;
+            if (!vowelwithindex(x, x.length() - 1)) {
+                if (!vowelwithindex(x, x.length() - 2)) {
+                    return true;
+
                 } else
                     return false;
-           
+            } else
+                return false;
+
         }
         return false;
     }
 
-    // public Boolean endswithS(String x) /// (and similarly for the other letters). what does it mean? ies, ss???? or not
+    // public Boolean endswithS(String x) /// (and similarly for the other letters).
+    // what does it mean? ies, ss???? or not
     // {
-    //     if (x.length() > 0) {
-    //         if (x.charAt(x.length() - 1) == 's')
-    //             return true;
+    // if (x.length() > 0) {
+    // if (x.charAt(x.length() - 1) == 's')
+    // return true;
 
-    //     }
-    //     return false;
+    // }
+    // return false;
     // }
 
     public int measure(String z) {
@@ -110,41 +111,55 @@ public class Stemmer {
 
     public String step1a(String s) {
         if (s.length() >= 4 && s.toLowerCase().endsWith("sses")) {
-            s = s.substring(0, s.length() - 3); // Removes the es at the end of the word
+            s = s.substring(0, s.length() - 2); // Removes the es at the end of the word
         } else if (s.length() >= 3 && s.toLowerCase().endsWith("ies")) {
-            s = s.substring(0, s.length() - 3); // Removes the es at the end of the word
+            s = s.substring(0, s.length() - 2); // Removes the es at the end of the word
         } else if (s.length() >= 2 && !(s.toLowerCase().endsWith("ss")) && s.toLowerCase().endsWith("s")) {
-            s = s.substring(0, s.length() - 2); // Removes the s at the end of the word
+            s = s.substring(0, s.length() - 1); // Removes the s at the end of the word
         }
         return s;
     }
 
     public String step1b(String s) {
-        if (measure(s) > 0 && s.toLowerCase().endsWith("eed")) {
-            s = s.substring(0, s.length() - 2); // Removes the d at the end of the word
-        } else if (vowel(s) && s.toLowerCase().endsWith("ed")) {
-            s = s.substring(0, s.length() - 3); // Removes the ed at the end of the word
+        if (measure(s.substring(0, s.length() - 1)) > 0 && s.toLowerCase().endsWith("eed")) {
+            s = s.substring(0, s.length() - 1); // Removes the d at the end of the word
+        } else if (vowel(s.substring(0, s.length() - 2)) && s.toLowerCase().endsWith("ed")
+                && !s.toLowerCase().endsWith("eed")) {
+            s = s.substring(0, s.length() - 2); // Removes the ed at the end of the word
             s = step1bfollowup(s);
-        } else if (vowel(s) && s.toLowerCase().endsWith("ing")) {
-            s = s.substring(0, s.length() - 4); // Removes the ing at the end of the word
+        } else if (vowel(s.substring(0, s.length() - 3)) && s.toLowerCase().endsWith("ing")) {
+            s = s.substring(0, s.length() - 3); // Removes the ing at the end of the word
             s = step1bfollowup(s);
         }
         return s;
     }
 
     public String step1bfollowup(String s) {
-        if (measure(s) == 1 && endscvc(s)) {
+        if (measure(s.substring(0, s.length() - 1)) == 1 && endscvc(s.substring(0, s.length() - 1))) {
             s = s.concat("e"); // Add an e at the end of the word
-        } else if (Doubleconsonant(s)
-                && !(s.toLowerCase().endsWith("l") || s.toLowerCase().endsWith("s") || s.toLowerCase().endsWith("z"))) {
-            s = s.substring(0, s.length() - 2); // Removes the repeated constant at the end of the word
+        } else if (Doubleconsonant(s.substring(0, s.length() - 1))
+                && !(s.substring(0, s.length() - 1).toLowerCase().endsWith("l")
+                        || s.substring(0, s.length() - 1).toLowerCase().endsWith("s")
+                        || s.substring(0, s.length() - 1).toLowerCase().endsWith("z"))) {
+            s = s.substring(0, s.length() - 1); // Removes the repeated constant at the end of the word
         }
         return s;
     }
 
     public String step1c(String s) {
-        if (vowel(s) && s.toLowerCase().endsWith("y")) {
-            s = s.substring(0, s.length() - 2) + "i";// Replaces the y by an i at the end of the word
+        if (vowel(s.substring(0, s.length() - 1)) && s.toLowerCase().endsWith("y")) {
+            s = s.substring(0, s.length() - 1) + "i";// Replaces the y by an i at the end of the word
+        }
+        return s;
+    }
+
+    public String step2(String s) {
+        if (s.length() >= 4 && s.toLowerCase().endsWith("sses")) {
+            s = s.substring(0, s.length() - 2); // Removes the es at the end of the word
+        } else if (s.length() >= 3 && s.toLowerCase().endsWith("ies")) {
+            s = s.substring(0, s.length() - 2); // Removes the es at the end of the word
+        } else if (s.length() >= 2 && !(s.toLowerCase().endsWith("ss")) && s.toLowerCase().endsWith("s")) {
+            s = s.substring(0, s.length() - 1); // Removes the s at the end of the word
         }
         return s;
     }
@@ -244,7 +259,41 @@ public class Stemmer {
         // System.out.println(s.endswithS("sess"));
         System.out.println(s.vowel("xox"));
         System.out.println(s.vowelwithindex("xox", 1));
-        System.out.println(s.consonant("toy")); 
+        System.out.println(s.consonant("toy"));
+
+        System.out.println("");
+        System.out.println(s.step1a("caresses"));
+        System.out.println(s.step1a("ponies"));
+        System.out.println(s.step1a("ties"));
+        System.out.println(s.step1a("caress"));
+        System.out.println(s.step1a("cats"));
+
+        System.out.println("");
+        System.out.println(s.step1b("feed"));
+        System.out.println(s.step1b("agreed"));
+        System.out.println(s.step1b("plastered"));
+        System.out.println(s.step1b("bled"));
+        System.out.println(s.step1b("motoring"));
+        System.out.println(s.step1b("sing"));
+
+        System.out.println("");
+        // Testing the 1b followup function
+        System.out.println(s.step1b("conflated"));
+        System.out.println(s.step1b("troubled"));
+        System.out.println(s.step1b("sized"));
+        System.out.println(s.step1b("hopping"));
+        System.out.println(s.step1b("tanned"));
+        System.out.println(s.step1b("falling"));
+        System.out.println(s.step1b("hissing"));
+        System.out.println(s.step1b("fizzed"));
+        System.out.println(s.step1b("failing"));
+        System.out.println(s.step1b("filing"));
+
+        System.out.println("");
+        System.out.println(s.step1c("happy"));
+        System.out.println(s.step1c("sky"));
+
+        System.out.println("");
         System.out.println(s.Step5_a("probate"));
         System.out.println(s.Step5_b("controll"));
         System.out.println(s.Step5_b("roll"));
