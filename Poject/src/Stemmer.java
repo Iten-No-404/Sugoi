@@ -149,7 +149,7 @@ public class Stemmer {
 
     public String Step5_a(String x) {
         if (x.length() >= 2) {
-            String y = x.substring(0, x.length() - 2);
+            String y = x.substring(0, x.length() - 1);
             int m = measure(y);
             if (m > 1 && x.charAt(x.length() - 1) == 'e') {
                 return y;
@@ -163,7 +163,7 @@ public class Stemmer {
 
     public String Step5_b(String x) {
         if (x.length() >= 2) {
-            String y = x.substring(0, x.length() - 2);
+            String y = x.substring(0, x.length() - 1);
             int m = measure(x);
             if (m > 1 && Doubleconsonant(x) && x.charAt(x.length() - 1) == 'l') {
                 return y;
@@ -182,7 +182,8 @@ public class Stemmer {
         System.out.println(s.endswithS("sess"));
         System.out.println(s.vowel("xox"));
         System.out.println(s.vowelwithindex("xox", 1));
-        System.out.println(s.consonant("toy")); /// confused
+        System.out.println(s.consonant("toy")); 
+        System.out.println(s.Step5_a("probate"));
     }
 
 }
