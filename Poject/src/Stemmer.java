@@ -78,8 +78,11 @@ public class Stemmer {
                 x += "c";
             }
         }
-
-        return x.split("cv", -1).length - 1;
+        int val1=x.split("cv", -1).length - 1;
+        int val2=x.split("vc", -1).length - 1;
+       if(val1<val2)
+        return  val2;
+        return val1;
 
     }
 
@@ -173,6 +176,64 @@ public class Stemmer {
         return x;
 
     }
+    public String Step4(String x)
+    {
+     
+        String y;
+      if(x.endsWith("al") || x.endsWith("er") || x.endsWith("ic")|| x.endsWith("ou"))
+        {
+          y =x.substring(0,x.length()-2);
+            if(measure(y)>1)
+            {
+                return y;
+            }
+
+        }
+        else if(x.endsWith("ance") ||x.endsWith("ence") || x.endsWith("able") || x.endsWith("ible") || x.endsWith("ment") )
+        {
+            y =x.substring(0,x.length()-4);
+            if(measure(y)>1)
+            {
+                return y;
+            }
+
+        }
+        else if(x.endsWith("ant") || x.endsWith("ent") || x.endsWith("ism") || x.endsWith("ate") || x.endsWith("iti") || x.endsWith("ous")
+         || x.endsWith("ive") || x.endsWith("ize"))
+
+        {
+            y =x.substring(0,x.length()-3);
+            if(measure(y)>1)
+            {
+                return y;
+            }
+
+        }
+        else if(x.endsWith("ement"))
+        {
+            y =x.substring(0,x.length()-5);
+            if(measure(y)>1)
+            {
+                return y;
+            }
+
+        }
+        else if(x.endsWith("ion"))
+        {
+            y =x.substring(0,x.length()-5);
+            if(measure(y)>1&& (y.endsWith("s") || y.endsWith("t")))
+            {
+                return y;
+            }
+
+        }
+        
+     
+        
+       
+      
+        return x;
+    }
 
     public static void main(String argv[]) {
         // let us check
@@ -183,6 +244,27 @@ public class Stemmer {
         System.out.println(s.vowelwithindex("xox", 1));
         System.out.println(s.consonant("toy")); 
         System.out.println(s.Step5_a("probate"));
+        System.out.println(s.Step5_b("controll"));
+        System.out.println(s.Step5_b("roll"));
+        System.out.println(s.Step4("revival"));
+        System.out.println(s.Step4("allowance"));
+        System.out.println(s.Step4("inference"));
+        System.out.println(s.Step4("airliner"));
+        System.out.println(s.Step4("gyroscopic"));
+        System.out.println(s.Step4("adjustable"));
+        System.out.println(s.Step4("defensible"));
+        System.out.println(s.Step4("irritant"));
+        System.out.println(s.Step4("replacement"));
+        System.out.println(s.Step4("adjustment"));
+        System.out.println(s.Step4("dependent"));
+        System.out.println(s.Step4("adoption"));
+        System.out.println(s.Step4("homologou"));
+        System.out.println(s.Step4("communism"));
+        System.out.println(s.Step4("activate"));
+        System.out.println(s.Step4("angulariti"));
+        System.out.println(s.Step4("homologous"));
+        System.out.println(s.Step4("effective"));
+        System.out.println(s.Step4("bowdlerize"));
     }
 
 }
