@@ -1,4 +1,13 @@
-
+import java.util.ArrayList;  
+import java.util.Arrays;  
+import java.io.File;
+import java.io.IOException; 
+import org.jsoup.Jsoup; 
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.safety.Whitelist;
+import java.io.FileWriter; 
+import java.io.IOException; 
 public class Stemmer {
     private String Word;
     private String actualvalue;
@@ -121,13 +130,13 @@ public class Stemmer {
     }
 
     public String step1b(String s) {
-        if (measure(s.substring(0, s.length() - 3)) > 0 && s.toLowerCase().endsWith("eed")) {
+        if (s.length() >= 3 && measure(s.substring(0, s.length() - 3)) > 0 && s.toLowerCase().endsWith("eed")) {
             s = s.substring(0, s.length() - 1); // Removes the d at the end of the word
-        } else if (vowel(s.substring(0, s.length() - 2)) && s.toLowerCase().endsWith("ed")
+        } else if (s.length() >= 2 && vowel(s.substring(0, s.length() - 2)) && s.toLowerCase().endsWith("ed")
                 && !s.toLowerCase().endsWith("eed")) {
             s = s.substring(0, s.length() - 2); // Removes the ed at the end of the word
             s = step1bfollowup(s);
-        } else if (vowel(s.substring(0, s.length() - 3)) && s.toLowerCase().endsWith("ing")) {
+        } else if (s.length() >= 3 && vowel(s.substring(0, s.length() - 3)) && s.toLowerCase().endsWith("ing")) {
             s = s.substring(0, s.length() - 3); // Removes the ing at the end of the word
             s = step1bfollowup(s);
         }
@@ -138,7 +147,7 @@ public class Stemmer {
         if(s.length() >= 2 && (s.toLowerCase().endsWith("at") || s.toLowerCase().endsWith("bl") || s.toLowerCase().endsWith("iz"))) 
         {
             s = s.concat("e"); // Add an e at the end of the word
-        } else if (Doubleconsonant(s)
+        } else if (s.length() >= 1 && Doubleconsonant(s)
                 && !(s.substring(0, s.length() - 1).toLowerCase().endsWith("l")
                         || s.substring(0, s.length() - 1).toLowerCase().endsWith("s")
                         || s.substring(0, s.length() - 1).toLowerCase().endsWith("z"))) {
@@ -150,7 +159,7 @@ public class Stemmer {
     }
 
     public String step1c(String s) {
-        if (vowel(s.substring(0, s.length() - 1)) && s.toLowerCase().endsWith("y")) {
+        if (s.length() >= 1 && vowel(s.substring(0, s.length() - 1)) && s.toLowerCase().endsWith("y")) {
             s = s.substring(0, s.length() - 1) + "i";// Replaces the y by an i at the end of the word
         }
         return s;
@@ -352,7 +361,19 @@ public class Stemmer {
             // System.out.println(words[i]); for debugging
         }
         return words;
+    }
 
+    public String PorterStemming(String s)
+    {
+        s = step1a(s);
+        s = step1b(s);
+        s = step1c(s);
+        s = step2(s);
+        s = Step3(s);
+        s = Step4(s);
+        s = Step5_a(s);
+        s = Step5_b(s);
+        return s;
     }
 
     public static void main(String argv[]) {
@@ -360,97 +381,164 @@ public class Stemmer {
 
         Stemmer s = new Stemmer("SSES");
         // System.out.println(s.endswithS("sess"));
-        System.out.println(s.vowel("xox"));
-        System.out.println(s.vowelwithindex("xox", 1));
-        System.out.println(s.consonant("toy"));
+        // System.out.println(s.vowel("xox"));
+        // System.out.println(s.vowelwithindex("xox", 1));
+        // System.out.println(s.consonant("toy"));
 
-        System.out.println("");
-        System.out.println(s.step1a("caresses"));
-        System.out.println(s.step1a("ponies"));
-        System.out.println(s.step1a("ties"));
-        System.out.println(s.step1a("caress"));
-        System.out.println(s.step1a("cats"));
+        // System.out.println("");
+        // System.out.println(s.step1a("caresses"));
+        // System.out.println(s.step1a("ponies"));
+        // System.out.println(s.step1a("ties"));
+        // System.out.println(s.step1a("caress"));
+        // System.out.println(s.step1a("cats"));
 
-        System.out.println("");
-        System.out.println(s.step1b("feed"));
-        System.out.println(s.step1b("agreed"));
-        System.out.println(s.step1b("plastered"));
-        System.out.println(s.step1b("bled"));
-        System.out.println(s.step1b("motoring"));
-        System.out.println(s.step1b("sing"));
+        // System.out.println("");
+        // System.out.println(s.step1b("feed"));
+        // System.out.println(s.step1b("agreed"));
+        // System.out.println(s.step1b("plastered"));
+        // System.out.println(s.step1b("bled"));
+        // System.out.println(s.step1b("motoring"));
+        // System.out.println(s.step1b("sing"));
 
-        System.out.println("");
-        // Testing the 1b followup function
-        System.out.println(s.step1b("conflated"));
-        System.out.println(s.step1b("troubled"));
-        System.out.println(s.step1b("sized"));
-        System.out.println(s.step1b("hopping"));
-        System.out.println(s.step1b("tanned"));
-        System.out.println(s.step1b("falling"));
-        System.out.println(s.step1b("hissing"));
-        System.out.println(s.step1b("fizzed"));
-        System.out.println(s.step1b("failing"));
-        System.out.println(s.step1b("filing"));
+        // System.out.println("");
+        // // Testing the 1b followup function
+        // System.out.println(s.step1b("conflated"));
+        // System.out.println(s.step1b("troubled"));
+        // System.out.println(s.step1b("sized"));
+        // System.out.println(s.step1b("hopping"));
+        // System.out.println(s.step1b("tanned"));
+        // System.out.println(s.step1b("falling"));
+        // System.out.println(s.step1b("hissing"));
+        // System.out.println(s.step1b("fizzed"));
+        // System.out.println(s.step1b("failing"));
+        // System.out.println(s.step1b("filing"));
 
-        System.out.println("");
-        System.out.println(s.step1c("happy"));
-        System.out.println(s.step1c("sky"));
+        // System.out.println("");
+        // System.out.println(s.step1c("happy"));
+        // System.out.println(s.step1c("sky"));
 
-        System.out.println("");
-        System.out.println(s.step2("relational"));
-        System.out.println(s.step2("conditional"));
-        System.out.println(s.step2("rational"));//Always produces wrong answer NEEDS FIXING
-        System.out.println(s.step2("valenci"));
-        System.out.println(s.step2("hesitanci"));
-        System.out.println(s.step2("digitizer"));
-        System.out.println(s.step2("conformabli"));
-        System.out.println(s.step2("radicalli"));
-        System.out.println(s.step2("differentli"));
-        System.out.println(s.step2("vileli"));
-        System.out.println(s.step2("analogousli"));
-        System.out.println(s.step2("vietnamization"));
-        System.out.println(s.step2("predication"));
-        System.out.println(s.step2("operator"));
-        System.out.println(s.step2("feudalism"));
-        System.out.println(s.step2("decisiveness"));
-        System.out.println(s.step2("hopefulness"));
-        System.out.println(s.step2("callousness"));
-        System.out.println(s.step2("formaliti"));
-        System.out.println(s.step2("sensitiviti"));
-        System.out.println(s.step2("sensibiliti"));
+        // System.out.println("");
+        // System.out.println(s.step2("relational"));
+        // System.out.println(s.step2("conditional"));
+        // System.out.println(s.step2("rational"));//Always produces wrong answer NEEDS FIXING
+        // System.out.println(s.step2("valenci"));
+        // System.out.println(s.step2("hesitanci"));
+        // System.out.println(s.step2("digitizer"));
+        // System.out.println(s.step2("conformabli"));
+        // System.out.println(s.step2("radicalli"));
+        // System.out.println(s.step2("differentli"));
+        // System.out.println(s.step2("vileli"));
+        // System.out.println(s.step2("analogousli"));
+        // System.out.println(s.step2("vietnamization"));
+        // System.out.println(s.step2("predication"));
+        // System.out.println(s.step2("operator"));
+        // System.out.println(s.step2("feudalism"));
+        // System.out.println(s.step2("decisiveness"));
+        // System.out.println(s.step2("hopefulness"));
+        // System.out.println(s.step2("callousness"));
+        // System.out.println(s.step2("formaliti"));
+        // System.out.println(s.step2("sensitiviti"));
+        // System.out.println(s.step2("sensibiliti"));
 
-        System.out.println("");
-        System.out.println(s.Step5_a("probate"));
-        System.out.println(s.Step5_b("controll"));
-        System.out.println(s.Step5_b("roll"));
-        System.out.println(s.Step4("revival"));
-        System.out.println(s.Step4("allowance"));
-        System.out.println(s.Step4("inference"));
-        System.out.println(s.Step4("airliner"));
-        System.out.println(s.Step4("gyroscopic"));
-        System.out.println(s.Step4("adjustable"));
-        System.out.println(s.Step4("defensible"));
-        System.out.println(s.Step4("irritant"));
-        System.out.println(s.Step4("replacement"));
-        System.out.println(s.Step4("adjustment"));
-        System.out.println(s.Step4("dependent"));
-        System.out.println(s.Step4("adoption"));
-        System.out.println(s.Step4("homologou"));
-        System.out.println(s.Step4("communism"));
-        System.out.println(s.Step4("activate"));
-        System.out.println(s.Step4("angulariti"));
-        System.out.println(s.Step4("homologous"));
-        System.out.println(s.Step4("effective"));
-        System.out.println(s.Step4("bowdlerize"));
-        System.out.println(s.Step3("triplicate"));
-        System.out.println(s.Step3("formative"));
-        System.out.println(s.Step3("formalize"));
-        System.out.println(s.Step3("electriciti"));
-        System.out.println(s.Step3("electrical"));
-        System.out.println(s.Step3("hopeful"));
-        System.out.println(s.Step3("goodness"));
-        s.Spliter(
+        // System.out.println("");
+        // System.out.println(s.Step5_a("probate"));
+        // System.out.println(s.Step5_b("controll"));
+        // System.out.println(s.Step5_b("roll"));
+        // System.out.println(s.Step4("revival"));
+        // System.out.println(s.Step4("allowance"));
+        // System.out.println(s.Step4("inference"));
+        // System.out.println(s.Step4("airliner"));
+        // System.out.println(s.Step4("gyroscopic"));
+        // System.out.println(s.Step4("adjustable"));
+        // System.out.println(s.Step4("defensible"));
+        // System.out.println(s.Step4("irritant"));
+        // System.out.println(s.Step4("replacement"));
+        // System.out.println(s.Step4("adjustment"));
+        // System.out.println(s.Step4("dependent"));
+        // System.out.println(s.Step4("adoption"));
+        // System.out.println(s.Step4("homologou"));
+        // System.out.println(s.Step4("communism"));
+        // System.out.println(s.Step4("activate"));
+        // System.out.println(s.Step4("angulariti"));
+        // System.out.println(s.Step4("homologous"));
+        // System.out.println(s.Step4("effective"));
+        // System.out.println(s.Step4("bowdlerize"));
+        // System.out.println(s.Step3("triplicate"));
+        // System.out.println(s.Step3("formative"));
+        // System.out.println(s.Step3("formalize"));
+        // System.out.println(s.Step3("electriciti"));
+        // System.out.println(s.Step3("electrical"));
+        // System.out.println(s.Step3("hopeful"));
+        // System.out.println(s.Step3("goodness"));
+
+        System.out.println(" ");
+        String Arr[] = s.Spliter(
                 "In the rules below , examples of their application successful or otherwise , are given on the right in lower case. The algorithm now follows:");
+        for(int i=0; i<Arr.length; i++)
+            System.out.println(Arr[i]);
+        //Clear empty words
+        ArrayList<String> ArrL = new ArrayList<String>(Arrays.asList(Arr));
+        for(int i=0; i< ArrL.size(); i++)
+            if(ArrL.get(i) == "")
+                ArrL.remove(i);
+        Arr = ArrL.toArray(Arr);
+        System.out.println(" ");
+        for(int i=0; i<Arr.length; i++)
+            System.out.println(Arr[i]);
+
+        
+
+            ///Big Test Here:
+
+            String title;
+            Document doc=null;
+            String FileName = "-808050354.html";
+            try { doc = Jsoup.parse(new File(FileName), "ISO-8859-1");
+            title = doc.title();
+            }
+           
+            catch (IOException e) { e.printStackTrace();
+            System.out.println("iii");
+            }
+            
+            String Arrr = Jsoup.clean(doc.toString(), Whitelist.none());
+            Arr = s.Spliter(Arrr);
+            ArrL = new ArrayList<String>(Arrays.asList(Arr));
+            for(int i=0; i< ArrL.size(); i++)
+                if(ArrL.get(i) == "")
+                    ArrL.remove(i);
+            Arr = ArrL.toArray(Arr);
+            System.out.println(" ");
+
+            try {
+                FileWriter myWriter = new FileWriter(FileName.substring(0, FileName.length()-5)+".txt");
+                for(int i=0; i<Arr.length; i++)
+                {
+                    if(Arr[i] != null)
+                        myWriter.write(Arr[i] + "\n");
+                    System.out.println(Arr[i]);
+                }
+                myWriter.close();
+                System.out.println("Successfully wrote to the file.");
+              } catch (IOException e) {
+                System.out.println("An error occurred.");
+                e.printStackTrace();
+              }
+    
+              try {
+                FileWriter myWriter = new FileWriter(FileName.substring(0, FileName.length()-5)+ "-stemmed"+".txt");
+                for(int i=0; i<Arr.length; i++)
+                {
+                    if(Arr[i] != null)
+                        myWriter.write(Arr[i] + "\t\t\t\t\t\t\t" + s.PorterStemming(Arr[i]) + "\n");
+                    System.out.println(Arr[i]);
+                }
+                myWriter.close();
+                System.out.println("Successfully wrote to the file.");
+              } catch (IOException e) {
+                System.out.println("An error occurred.");
+                e.printStackTrace();
+              }
     }
 
 }
