@@ -121,7 +121,7 @@ public class Stemmer {
     }
 
     public String step1b(String s) {
-        if (measure(s.substring(0, s.length() - 1)) > 0 && s.toLowerCase().endsWith("eed")) {
+        if (measure(s.substring(0, s.length() - 3)) > 0 && s.toLowerCase().endsWith("eed")) {
             s = s.substring(0, s.length() - 1); // Removes the d at the end of the word
         } else if (vowel(s.substring(0, s.length() - 2)) && s.toLowerCase().endsWith("ed")
                 && !s.toLowerCase().endsWith("eed")) {
@@ -135,13 +135,16 @@ public class Stemmer {
     }
 
     public String step1bfollowup(String s) {
-        if (measure(s.substring(0, s.length() - 1)) == 1 && endscvc(s.substring(0, s.length() - 1))) {
+        if(s.length() >= 2 && (s.toLowerCase().endsWith("at") || s.toLowerCase().endsWith("bl") || s.toLowerCase().endsWith("iz"))) 
+        {
             s = s.concat("e"); // Add an e at the end of the word
-        } else if (Doubleconsonant(s.substring(0, s.length() - 1))
+        } else if (Doubleconsonant(s)
                 && !(s.substring(0, s.length() - 1).toLowerCase().endsWith("l")
                         || s.substring(0, s.length() - 1).toLowerCase().endsWith("s")
                         || s.substring(0, s.length() - 1).toLowerCase().endsWith("z"))) {
             s = s.substring(0, s.length() - 1); // Removes the repeated constant at the end of the word
+        } else if (measure(s) == 1 && endscvc(s)) {
+            s = s.concat("e"); // Add an e at the end of the word
         }
         return s;
     }
@@ -154,13 +157,47 @@ public class Stemmer {
     }
 
     public String step2(String s) {
-        if (s.length() >= 4 && s.toLowerCase().endsWith("sses")) {
-            s = s.substring(0, s.length() - 2); // Removes the es at the end of the word
-        } else if (s.length() >= 3 && s.toLowerCase().endsWith("ies")) {
-            s = s.substring(0, s.length() - 2); // Removes the es at the end of the word
-        } else if (s.length() >= 2 && !(s.toLowerCase().endsWith("ss")) && s.toLowerCase().endsWith("s")) {
-            s = s.substring(0, s.length() - 1); // Removes the s at the end of the word
-        }
+        if (s.length() >= 7 && measure(s.substring(0, s.length() - 7)) > 0 && s.toLowerCase().endsWith("ational")) {
+            s = s.substring(0, s.length() - 7) + "ate"; // ATIONAL -->  ATE
+        } else if (s.length() >= 7 && measure(s.substring(0, s.length() - 7)) > 0 && s.toLowerCase().endsWith("ization")) {
+            s = s.substring(0, s.length() - 7) + "ize"; // IZATION -->  IZE
+        } else if (s.length() >= 7 && measure(s.substring(0, s.length() - 7)) > 0 && s.toLowerCase().endsWith("iveness")) {
+            s = s.substring(0, s.length() - 7) + "ive"; // IVENESS -->  IVE
+        } else if (s.length() >= 7 && measure(s.substring(0, s.length() - 7)) > 0 && s.toLowerCase().endsWith("fulness")) {
+            s = s.substring(0, s.length() - 7) + "ful"; // FULNESS -->  FUL
+        } else if (s.length() >= 7 && measure(s.substring(0, s.length() - 7)) > 0 && s.toLowerCase().endsWith("ousness")) {
+            s = s.substring(0, s.length() - 7) + "ous"; // OUSNESS -->  OUS
+        } else if (s.length() >= 6 && measure(s.substring(0, s.length() - 6)) > 0 && s.toLowerCase().endsWith("tional")) {
+            s = s.substring(0, s.length() - 6) + "tion";// TIONAL  -->  TION
+        } else if (s.length() >= 6 && measure(s.substring(0, s.length() - 6)) > 0 && s.toLowerCase().endsWith("biliti")) {
+            s = s.substring(0, s.length() - 6) + "ble"; // BILITI  -->  BLE
+        } else if (s.length() >= 5 && measure(s.substring(0, s.length() - 5)) > 0 && s.toLowerCase().endsWith("entli")) {
+            s = s.substring(0, s.length() - 5) + "ent"; // ENTLI   -->  ENT
+        } else if (s.length() >= 5 && measure(s.substring(0, s.length() - 5)) > 0 && s.toLowerCase().endsWith("ousli")) {
+            s = s.substring(0, s.length() - 5) + "ous"; // OUSLI   -->  OUS
+        } else if (s.length() >= 5 && measure(s.substring(0, s.length() - 5)) > 0 && s.toLowerCase().endsWith("ation")) {
+            s = s.substring(0, s.length() - 5) + "ate"; // ATION   -->  ATE
+        } else if (s.length() >= 5 && measure(s.substring(0, s.length() - 5)) > 0 && s.toLowerCase().endsWith("alism")) {
+            s = s.substring(0, s.length() - 5) + "al";  // ALISM   -->  AL
+        } else if (s.length() >= 5 && measure(s.substring(0, s.length() - 5)) > 0 && s.toLowerCase().endsWith("aliti")) {
+            s = s.substring(0, s.length() - 5) + "al";  // ALITI   -->  AL
+        } else if (s.length() >= 5 && measure(s.substring(0, s.length() - 5)) > 0 && s.toLowerCase().endsWith("iviti")) {
+            s = s.substring(0, s.length() - 5) + "ive"; // IVITI   -->  IVE
+        } else if (s.length() >= 4 && measure(s.substring(0, s.length() - 4)) > 0 && s.toLowerCase().endsWith("enci")) {
+            s = s.substring(0, s.length() - 4) + "ence";// ENCI    -->  ENCE
+        } else if (s.length() >= 4 && measure(s.substring(0, s.length() - 4)) > 0 && s.toLowerCase().endsWith("anci")) {
+            s = s.substring(0, s.length() - 4) + "ance";// ANCI    -->  ANCE
+        } else if (s.length() >= 4 && measure(s.substring(0, s.length() - 4)) > 0 && s.toLowerCase().endsWith("izer")) {
+            s = s.substring(0, s.length() - 4) + "ize"; // IZER    -->  IZE
+        } else if (s.length() >= 4 && measure(s.substring(0, s.length() - 4)) > 0 && s.toLowerCase().endsWith("abli")) {
+            s = s.substring(0, s.length() - 4) + "able";// ABLI    -->  ABLE
+        } else if (s.length() >= 4 && measure(s.substring(0, s.length() - 4)) > 0 && s.toLowerCase().endsWith("alli")) {
+            s = s.substring(0, s.length() - 4) + "al";  // ALLI    -->  AL
+        } else if (s.length() >= 4 && measure(s.substring(0, s.length() - 4)) > 0 && s.toLowerCase().endsWith("ator")) {
+            s = s.substring(0, s.length() - 4) + "ate"; // ATOR    -->  ATE
+        } else if (s.length() >= 3 && measure(s.substring(0, s.length() - 3)) > 0 && s.toLowerCase().endsWith("eli")) {
+            s = s.substring(0, s.length() - 3) + "e";   // ELI     -->  E
+        } 
         return s;
     }
 
@@ -362,7 +399,7 @@ public class Stemmer {
         System.out.println("");
         System.out.println(s.step2("relational"));
         System.out.println(s.step2("conditional"));
-        System.out.println(s.step2("rational"));//Always produces wrong anwer NEEDS FIXING
+        System.out.println(s.step2("rational"));//Always produces wrong answer NEEDS FIXING
         System.out.println(s.step2("valenci"));
         System.out.println(s.step2("hesitanci"));
         System.out.println(s.step2("digitizer"));
