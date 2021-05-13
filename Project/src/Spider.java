@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
-
 public class Spider {
 
     private static final int MAX_PAGES = 10; /// < Max number of pages the crawler is allowed to visit.
@@ -56,9 +55,6 @@ public class Spider {
             next = toVisit.remove(0);
         } while (visited.contains(next) && !toVisit.isEmpty());
 
-        // Since it's going to be visited next, add it to the visited
-        visited.add(next);
-        currentPageVisitCount++;
         return next;
     }
 
@@ -126,7 +122,20 @@ public class Spider {
         Spider spooder = new Spider();
 
         while (spooder.ShouldContinue()) {
-            HTMLDownloader.DownloadPage(spooder.NextURL());
+            String URL = spooder.NextURL();
+
+            boolean downloadSuccessful = HTMLDownloader.DownloadPage(URL);
+
+            // Add the URL to the visited list if the page is downloaded
+            // or re-insertt it into the toVisit list if not.
+            if (downloadSuccessful) {
+                spooder.visited.add(URL);
+                spooder.currentPageVisitCount++;
+            }
+            else
+            {
+                spooder.toVisit.add(URL);
+            }
         }
 
         spooder.DumpLists();
