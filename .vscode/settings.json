@@ -4,7 +4,8 @@
             "lib/**/*.jar",
             "Project/bin/mongo-java-driver-2.13.3-javadoc.jar",
             "Project/src/mongo-java-driver-2.13.3-javadoc.jar",
-            "Project/src/mongo-java-driver-3.12.8.jar"
+            "Project/src/mongo-java-driver-3.12.8.jar",
+            "Project/src/jsoup-1.13.1.jar"
         ],
         "exclude": [
             "/Poject/src/jsoup-1.13.1.jar"
