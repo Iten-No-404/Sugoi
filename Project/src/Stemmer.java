@@ -8,6 +8,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.safety.Whitelist;
 import java.io.FileWriter; 
 import java.io.IOException; 
+import com.mongodb.*;
 public class Stemmer {
     private String Word;
     private String actualvalue;
