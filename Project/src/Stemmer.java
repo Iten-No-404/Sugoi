@@ -8,7 +8,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.safety.Whitelist;
 import java.io.FileWriter; 
 import java.io.IOException; 
-public class Stemmer {
+public class Stemmer implements Runnable {
     private String Word;
     private String actualvalue;
 
@@ -17,8 +17,15 @@ public class Stemmer {
         Word = x.toLowerCase();
         actualvalue = x;
     }
+    public void run()
+    { 
+        // for nothing untill now 
+        System.out.print("ooo");
+
+    }
 
     public Boolean vowel(String x) {
+        //check the word contain  vowel char or no
         if (x.indexOf("a") != -1 || x.indexOf("e") != -1 || x.indexOf("i") != -1 || x.indexOf("o") != -1
                 || x.indexOf("u") != -1) {
             return true;
@@ -27,6 +34,7 @@ public class Stemmer {
     }
 
     public Boolean vowelwithindex(String x, int index) {
+        // check the word contains vowel in specfic index
         if (index < 0)
             return false;
         if (x.charAt(index) == 'a' || x.charAt(index) == 'e' || x.charAt(index) == 'i' || x.charAt(index) == 'o'
@@ -52,7 +60,8 @@ public class Stemmer {
     }
 
     public Boolean Doubleconsonant(String x) {
-        if (x.length() >= 2) // not sure must more than 2 or just 2 enough
+        // chck there is  two consonant in end of the word
+        if (x.length() >= 2) 
         {
 
             if (!vowelwithindex(x, x.length() - 1)) {
@@ -68,18 +77,11 @@ public class Stemmer {
         return false;
     }
 
-    // public Boolean endswithS(String x) /// (and similarly for the other letters).
-    // what does it mean? ies, ss???? or not
-    // {
-    // if (x.length() > 0) {
-    // if (x.charAt(x.length() - 1) == 's')
-    // return true;
-
-    // }
-    // return false;
-    // }
+ 
 
     public int measure(String z) {
+        // compute m 
+        // the vowevl char is v else is c them count vc in the word  
         String x = "";
         for (int i = 0; i < z.length(); i++) {
             if (vowelwithindex(z, i) || (z.charAt(i) == 'y' && i > 0 && (vowelwithindex(z, i - 1)))) {
@@ -88,15 +90,17 @@ public class Stemmer {
                 x += "c";
             }
         }
-        int val1=x.split("cv", -1).length - 1;
-        int val2=x.split("vc", -1).length - 1;
-       if(val1<val2)
-        return  val2;
-        return val1;
+  
+   
+        return  x.split("vc", -1).length - 1;
+
 
     }
 
     public Boolean endscvc(String z) {
+        // check the word ends with cvc or not 
+        // c is consonant
+        // v vowel
         if (z.length() >= 3) {
             String x = "";
             for (int i = z.length() - 3; i < z.length(); i++) {
@@ -166,6 +170,7 @@ public class Stemmer {
     }
 
     public String step2(String s) {
+      
         if (s.length() >= 7 && measure(s.substring(0, s.length() - 7)) > 0 && s.toLowerCase().endsWith("ational")) {
             s = s.substring(0, s.length() - 7) + "ate"; // ATIONAL -->  ATE
         } else if (s.length() >= 7 && measure(s.substring(0, s.length() - 7)) > 0 && s.toLowerCase().endsWith("ization")) {
@@ -211,11 +216,13 @@ public class Stemmer {
     }
 
     public String Step5_a(String x) {
+           
+
         if (x.length() >= 2) {
             String y = x.substring(0, x.length() - 1);
-            int m = measure(y);
+            int m = measure(y);  //         (m>1) E     ->      
             if (m > 1 && x.charAt(x.length() - 1) == 'e') {
-                return y;
+                return y;   // (m=1 and not *o) E ->  
             } else if (m == 1 && !endscvc(y) && x.charAt(x.length() - 1) == 'e') {
                 return y;
 
@@ -226,6 +233,7 @@ public class Stemmer {
 
     public String Step5_b(String x) {
         if (x.length() >= 2) {
+            //  (m > 1 and *d and *L) -> single letter
             String y = x.substring(0, x.length() - 1);
             int m = measure(x);
             if (m > 1 && Doubleconsonant(x) && x.charAt(x.length() - 1) == 'l') {
@@ -241,6 +249,7 @@ public class Stemmer {
         public String Step3(String x)
         {
             String y;
+               // (m>0) ATIVE -> 
             if(  x.endsWith("ative") || x.endsWith("ative"))
             {
                 y =x.substring(0,x.length()-5);
@@ -249,7 +258,7 @@ public class Stemmer {
                     return y;
                 }
     
-            }
+            } // (m>0) ICATE ->  IC  
             else if(x.endsWith("icate"))
             {
                 y =x.substring(0,x.length()-5);
@@ -259,6 +268,7 @@ public class Stemmer {
                     return y;
                 }
             }
+             // (m>0) ALIZE ->  AL        
             else if(x.endsWith("alize"))
             {
                 y =x.substring(0,x.length()-5);
@@ -268,6 +278,7 @@ public class Stemmer {
                     return y;
                 }
             }
+             // (m>0) ICITI ->  IC     
             else if(x.endsWith("iciti"))
             {
                 y =x.substring(0,x.length()-5);
@@ -276,7 +287,7 @@ public class Stemmer {
                     y+="ic";
                     return y;
                 }
-            }
+            }  // (m>0) ICAL  ->  IC         
             else if(x.endsWith("ical"))
             {
                 y =x.substring(0,x.length()-4);
@@ -285,7 +296,7 @@ public class Stemmer {
                     y+="ic";
                     return y;
                 }
-            }
+            }   // (m>0) NESS  ->
             else if(x.endsWith("ness"))
             {
                 y =x.substring(0,x.length()-4);
@@ -294,7 +305,7 @@ public class Stemmer {
                   
                     return y;
                 }
-            }
+            }    // (m>0) FUL   ->        
             else if(x.endsWith("ful"))
             {
                 y =x.substring(0,x.length()-3);
@@ -310,23 +321,27 @@ public class Stemmer {
 
     public String Step4(String x) {
 
-        String y;
+        String y;            
         if (x.endsWith("ement")) {
             y = x.substring(0, x.length() - 5);
             if (measure(y) > 1) {
                 return y;
             }
-
-        } else if (x.endsWith("ance") || x.endsWith("ence") || x.endsWith("able") || x.endsWith("ible")
-                || x.endsWith("ment")) {
+            
+          } // (m>1) ANCE  ->        // (m>1) ENCE  ->    // (m>1) ABLE  ->         // (m>1) IBLE  ->            
+         else if (x.endsWith("ance") || x.endsWith("ence") || x.endsWith("able") || x.endsWith("ible")
+                || x.endsWith("ment"))    // (m>1) MENT  ->                 
+                
+         {
             y = x.substring(0, x.length() - 4);
             if (measure(y) > 1) {
                 return y;
             }
 
-        } else if (x.endsWith("ant") || x.endsWith("ent") || x.endsWith("ism") || x.endsWith("ate") || x.endsWith("iti")
+        }    // (m>1) ANT   ->      // (m>1) ENT   ->      // (m>1) ISM   ->   // (m>1) ATE   ->         // (m>1) ITI   ->     
+        else if (x.endsWith("ant") || x.endsWith("ent") || x.endsWith("ism") || x.endsWith("ate") || x.endsWith("iti")
                 || x.endsWith("ous") || x.endsWith("ive") || x.endsWith("ize"))
-
+                      // (m>1) OUS   ->       // (m>1) IVE   ->      // (m>1) IZE   ->  
         {
             y = x.substring(0, x.length() - 3);
             if (measure(y) > 1) {
@@ -334,14 +349,15 @@ public class Stemmer {
             }
 
         }
-
+           // (m>1 and (*S or *T)) ION ->   
         else if (x.endsWith("ion")) {
             y = x.substring(0, x.length() - 3);
             if (measure(y) > 1 && (y.endsWith("s") || y.endsWith("t"))) {
                 return y;
             }
 
-        } else if (x.endsWith("al") || x.endsWith("er") || x.endsWith("ic") || x.endsWith("ou")) {
+        }  // (m>1) AL    ->           // (m>1) ER    ->         // (m>1) IC    ->         // (m>1) OU    ->         
+        else if (x.endsWith("al") || x.endsWith("er") || x.endsWith("ic") || x.endsWith("ou")) {
             y = x.substring(0, x.length() - 2);
             if (measure(y) > 1) {
                 return y;
@@ -353,18 +369,24 @@ public class Stemmer {
     }
 
     public String[] Spliter(String text) {
-
+    // split text to words
         String[] words = text.split("\\s+");
         for (int i = 0; i < words.length; i++) {
 
             words[i] = words[i].replaceAll("[^\\w]", "");
-            // System.out.println(words[i]); for debugging
+         
         }
+        ArrayList<String> ArrL = new ArrayList<String>(Arrays.asList(words));
+        for(int i=0; i< ArrL.size(); i++)
+            if(ArrL.get(i) == "")
+                ArrL.remove(i);
+        words= ArrL.toArray(words);
         return words;
     }
 
     public String PorterStemming(String s)
     {
+        s= s.toLowerCase();
         s = step1a(s);
         s = step1b(s);
         s = step1c(s);
@@ -380,7 +402,7 @@ public class Stemmer {
         // let us check
 
         Stemmer s = new Stemmer("SSES");
-        // System.out.println(s.endswithS("sess"));
+
         // System.out.println(s.vowel("xox"));
         // System.out.println(s.vowelwithindex("xox", 1));
         // System.out.println(s.consonant("toy"));
@@ -401,7 +423,7 @@ public class Stemmer {
         // System.out.println(s.step1b("sing"));
 
         // System.out.println("");
-        // // Testing the 1b followup function
+        // Testing the 1b followup function
         // System.out.println(s.step1b("conflated"));
         // System.out.println(s.step1b("troubled"));
         // System.out.println(s.step1b("sized"));
@@ -420,7 +442,7 @@ public class Stemmer {
         // System.out.println("");
         // System.out.println(s.step2("relational"));
         // System.out.println(s.step2("conditional"));
-        // System.out.println(s.step2("rational"));//Always produces wrong answer NEEDS FIXING
+        // System.out.println(s.step2("rational"));
         // System.out.println(s.step2("valenci"));
         // System.out.println(s.step2("hesitanci"));
         // System.out.println(s.step2("digitizer"));
@@ -470,75 +492,71 @@ public class Stemmer {
         // System.out.println(s.Step3("electrical"));
         // System.out.println(s.Step3("hopeful"));
         // System.out.println(s.Step3("goodness"));
-
-        System.out.println(" ");
-        String Arr[] = s.Spliter(
-                "In the rules below , examples of their application successful or otherwise , are given on the right in lower case. The algorithm now follows:");
-        for(int i=0; i<Arr.length; i++)
-            System.out.println(Arr[i]);
-        //Clear empty words
-        ArrayList<String> ArrL = new ArrayList<String>(Arrays.asList(Arr));
-        for(int i=0; i< ArrL.size(); i++)
-            if(ArrL.get(i) == "")
-                ArrL.remove(i);
-        Arr = ArrL.toArray(Arr);
-        System.out.println(" ");
-        for(int i=0; i<Arr.length; i++)
-            System.out.println(Arr[i]);
+ 
+        // System.out.println(" ");
+        // String Arr[] = s.Spliter(
+        //         "In the rules below , examples of their application successful or otherwise , are given on the right in lower case. The algorithm now follows:");
+        // for(int i=0; i<Arr.length; i++)
+        //     System.out.println(Arr[i]);
+        // //Clear empty words
+      
+        // System.out.println(" ");
+        // for(int i=0; i<Arr.length; i++)
+        //     System.out.println(Arr[i]);
 
         
 
-            ///Big Test Here:
+        //     ///Big Test Here:
 
-            String title;
-            Document doc=null;
-            String FileName = "-808050354.html";
-            try { doc = Jsoup.parse(new File(FileName), "ISO-8859-1");
-            title = doc.title();
-            }
+        //     String title;
+        //     Document doc=null;
+        //     String FileName = "-808050354.html";
+        //     try { doc = Jsoup.parse(new File(FileName), "ISO-8859-1");
+        //     title = doc.title();
+        //     }
            
-            catch (IOException e) { e.printStackTrace();
-            System.out.println("iii");
-            }
+        //     catch (IOException e) { e.printStackTrace();
+        //     System.out.println("iii");
+        //     }
             
-            String Arrr = Jsoup.clean(doc.toString(), Whitelist.none());
-            Arr = s.Spliter(Arrr);
-            ArrL = new ArrayList<String>(Arrays.asList(Arr));
-            for(int i=0; i< ArrL.size(); i++)
-                if(ArrL.get(i) == "")
-                    ArrL.remove(i);
-            Arr = ArrL.toArray(Arr);
-            System.out.println(" ");
+        //     String Arrr = Jsoup.clean(doc.toString(), Whitelist.none());
+        //     Arr = s.Spliter(Arrr);
+        //     ArrL = new ArrayList<String>(Arrays.asList(Arr));
+        //     for(int i=0; i< ArrL.size(); i++)
+        //         if(ArrL.get(i) == "")
+        //             ArrL.remove(i);
+        //     Arr = ArrL.toArray(Arr);
+        //     System.out.println(" ");
 
-            try {
-                FileWriter myWriter = new FileWriter(FileName.substring(0, FileName.length()-5)+".txt");
-                for(int i=0; i<Arr.length; i++)
-                {
-                    if(Arr[i] != null)
-                        myWriter.write(Arr[i] + "\n");
-                    System.out.println(Arr[i]);
-                }
-                myWriter.close();
-                System.out.println("Successfully wrote to the file.");
-              } catch (IOException e) {
-                System.out.println("An error occurred.");
-                e.printStackTrace();
-              }
+        //     try {
+        //         FileWriter myWriter = new FileWriter(FileName.substring(0, FileName.length()-5)+".txt");
+        //         for(int i=0; i<Arr.length; i++)
+        //         {
+        //             if(Arr[i] != null)
+        //                 myWriter.write(Arr[i] + "\n");
+        //             System.out.println(Arr[i]);
+        //         }
+        //         myWriter.close();
+        //         System.out.println("Successfully wrote to the file.");
+        //       } catch (IOException e) {
+        //         System.out.println("An error occurred.");
+        //         e.printStackTrace();
+        //       }
     
-              try {
-                FileWriter myWriter = new FileWriter(FileName.substring(0, FileName.length()-5)+ "-stemmed"+".txt");
-                for(int i=0; i<Arr.length; i++)
-                {
-                    if(Arr[i] != null)
-                        myWriter.write(Arr[i] + "\t\t\t\t\t\t\t" + s.PorterStemming(Arr[i]) + "\n");
-                    System.out.println(Arr[i]);
-                }
-                myWriter.close();
-                System.out.println("Successfully wrote to the file.");
-              } catch (IOException e) {
-                System.out.println("An error occurred.");
-                e.printStackTrace();
-              }
+        //       try {
+        //         FileWriter myWriter = new FileWriter(FileName.substring(0, FileName.length()-5)+ "-stemmed"+".txt");
+        //         for(int i=0; i<Arr.length; i++)
+        //         {
+        //             if(Arr[i] != null)
+        //                 myWriter.write(Arr[i] + "\t\t\t\t\t\t\t" + s.PorterStemming(Arr[i]) + "\n");
+        //             System.out.println(Arr[i]);
+        //         }
+        //         myWriter.close();
+        //         System.out.println("Successfully wrote to the file.");
+        //       } catch (IOException e) {
+        //         System.out.println("An error occurred.");
+        //         e.printStackTrace();
+        //       }
     }
 
 }
