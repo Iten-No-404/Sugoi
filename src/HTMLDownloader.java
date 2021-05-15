@@ -1,8 +1,4 @@
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -14,11 +10,11 @@ import java.net.URL;
 // Maybe we should move this to the crawler?
 public class HTMLDownloader {
     public static boolean DownloadPage(String URL) {
-        if(URL == null) return false;
+        if (URL == null) return false;
         try {
             URL url = new URL(URL);
             BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream())); // Long boi
-            String fileName = String.valueOf(URL.hashCode()) + ".HTML";
+            String fileName = Definitions.HTML_DLD_PATH + String.valueOf(URL.hashCode()) + ".HTML";
             BufferedWriter bw = new BufferedWriter(new FileWriter(fileName)); // Longer boi
 
             String line;
@@ -27,23 +23,19 @@ public class HTMLDownloader {
             }
             br.close();
             bw.close();
-           System.out.format("\n%s downloaded successfully", url);
+            System.out.format("\n%s downloaded successfully", url);
 
-           return true;
+            return true;
         }
         // There must be a better way to do this than just returning false in all blocks..
-        catch(MalformedURLException me)
-        {
+        catch (MalformedURLException me) {
             System.out.println("ERROR: MALFORMED URL");
             return false;
-        }
-        catch(IOException ie)
-        {
+        } catch (IOException ie) {
             System.out.println("ERROR: IO EXCEPTION");
 
             return false;
-        }
-         catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }

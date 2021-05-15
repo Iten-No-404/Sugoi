@@ -1,14 +1,5 @@
-import java.util.ArrayList;  
-import java.util.Arrays;  
-import java.io.File;
-import java.io.IOException; 
-import org.jsoup.Jsoup; 
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.safety.Whitelist;
-import java.io.FileWriter; 
-import java.io.IOException; 
-import com.mongodb.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Stemmer implements Runnable {
     private String Word;
