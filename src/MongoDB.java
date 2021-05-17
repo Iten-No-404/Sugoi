@@ -1,73 +1,104 @@
-import com.mongodb.ConnectionString;
+import com.mongodb.*;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.MongoClientSettings;
+import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.*;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 
-import java.util.ArrayList;  
-import java.util.Arrays;  
+import javax.print.Doc;
+import java.sql.ClientInfoStatus;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.io.File;
-import java.io.IOException; 
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MongoDB {
     // ...
-	private MongoCollection<Document> collection;
- public MongoDB( MongoCollection<Document> coll)
-   {
-	  collection=coll;
+    private MongoCollection<Document> collection;
+    private Object next;
 
-   }
-   Boolean FindWord(String word)
-   {
+    public MongoDB(MongoCollection<Document> coll) {
+        collection = coll;
 
-	Document dc=  collection.find(new Document("id",word)).first();
-   if(!dc.isEmpty())
-    return true;
+    }
 
-	return false;
-   }
-	 
-    void insertword(String word, int position ,int DocNumber)
-	{
-	
+    Object FindWord(String word) {
 
-      if( !FindWord(word))
-	{
-		Document Doc1=new Document("id",word);
-		Doc1.append(String.valueOf(DocNumber),position);
-		List<Document> list = new ArrayList<Document>();
-		list.add(Doc1);
-       collection.insertOne(Doc1);
-	}
-	else
-	{
+        FindIterable<Document> dbc = collection.find(new BasicDBObject("id", word));
+        Iterator it = dbc.iterator();
+        Object next;
+        if (it.hasNext()) {
+            return it.next();
+        }
+//        if (!dc.isEmpty())
+//            return true;
 
-	}
-	   
+        return null;
+    }
 
-	}
-	public	static void main(String [] argv)
-  {
-	ConnectionString connString = new ConnectionString(
-		"mongodb://127.0.0.1:27017"
-		// connect to local host
-	);
-	MongoClientSettings settings = MongoClientSettings.builder()
-		.applyConnectionString(connString)
-		.retryWrites(true)
-		.build();
-	MongoClient mongoClient = MongoClients.create(settings);
-	MongoDatabase database = mongoClient.getDatabase("try");
-	MongoCollection<Document> collection = database.getCollection("first");
-		
-			MongoDB Mon=new MongoDB(collection);
-		
-		Mon.insertword("iiii",2,3);
-		
-	System.out.println("Collection sampleCollection selected successfully");
-  }   
+    void insertword(String word, int position, int DocNumber) {
+
+        Object wordFound = FindWord(word);
+        if (wordFound == null) {
+            List<String> paths = Arrays.asList("Nice", "Not Nice");
+            Document Doc1 = new Document("id", word)
+                    .append("bruh", "nice")
+                    .append("paths", paths)
+                    .append("nested", new BasicDBObject("array", Arrays.asList("one", "two")));
+            collection.insertOne(Doc1);
+        } else {
+            Document doc = (Document) wordFound;
+            Document nested = (Document) doc.get("nested");
+            List<String> list = (List<String>) nested.get("array");
+
+            // Sets the ID of the found document to MMXXIII
+//            collection.updateOne(Filters.eq("_id", oldID), Updates.set("id", "MMXXIII"));
+            System.out.println("AAAAAAAAAAAA");
+        }
+
+    }
+
+    public static void main(String[] argv) {
+        ConnectionString connString = new ConnectionString(
+                "mongodb://127.0.0.1:27017"
+                // connect to local host
+        );
+        MongoClientSettings settings = MongoClientSettings.builder()
+                .applyConnectionString(connString)
+                .retryWrites(true)
+                .build();
+        MongoClient mongoClient = MongoClients.create(settings);
+        MongoDatabase database = mongoClient.getDatabase("local");
+        MongoCollection<Document> collection = database.getCollection("first");
+
+        MongoDB Mon = new MongoDB(collection);
+
+        Mon.insertword("v", 2, 3);
+
+
+        System.out.println("Collection sampleCollection selected successfully");
+    }
+}
+
+
+class word
+{
+    // Can also be a list for easy acess.
+    HashSet<String> paths;
+    // Other things?
+}
+
+class doc
+{
+    // Given a word, returns the number of appearances in the specific doc
+    // Can also map to a more complex object to carry
+    // where each appearance of the word is
+    HashMap<String,Integer> wordToAppearance;
 }
