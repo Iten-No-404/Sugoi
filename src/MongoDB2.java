@@ -131,8 +131,116 @@ public class MongoDB2 {
 	   InsertWord(myword,index,Docnumber);
    	 return false;
    }
+	private Boolean InsertDoc(String word, int position ,int DocNumber)
+	{
 
-	 
+		ArrayList<Integer>Arr=new ArrayList<Integer>();
+		Arr.add(position);
+		ArrayList<Document> Docs= new ArrayList<Document>();
+		Document dc=new Document("word",word);
+		dc.append("positions",Arr);
+		Docs.add(dc);
+		Document doc=new Document("id",DocNumber);
+		doc.append("words", Docs);
+		collection.insertOne(doc);
+
+		return true;
+
+
+	}
+
+	Boolean findDoc(String myword ,int  index, int Docnumber)
+	{
+		Iterator it= collection.find().iterator();
+
+		Object next;
+		while(it.hasNext())
+		{
+			next= it.next();
+			Document doc =(Document)next;
+			Integer docnum=-1;
+			try {
+				docnum = (Integer) doc.get("id");
+			}
+			catch (Exception e)
+			{
+
+			}
+
+//			System.out.println(word);
+			if(Docnumber==docnum) {
+				List<String> Values = (List<String>) doc.get("words");
+				ArrayList<String> arr = new ArrayList<String>();
+				arr = (ArrayList<String>) Values;
+
+				String[] arr2 = new String[arr.size()];
+				Object[] objects = Values.toArray();
+				int  count=0;
+				for (Object obj : objects) {
+					Document dc = (Document) obj;
+
+					String Word = (String) dc.get("word");
+					if(Word.equals(myword)) {
+
+						List<Integer> mylink = (List<Integer>) dc.get("positions");
+						ArrayList<Integer> URL = new ArrayList<Integer>();
+						URL = (ArrayList<Integer>) mylink;
+						System.out.println(URL);
+						Object[] objectsfinal = URL.toArray();
+						for (Object ob : objectsfinal) {
+							System.out.println((Integer)ob);
+							if(index==	(Integer) ob)
+							{
+								return true;
+
+							}
+
+						}
+						// add position
+						URL.add(index);
+
+
+						ArrayList<Document> All=(ArrayList<Document>) doc.get("words");
+						BasicDBObject query = new BasicDBObject();
+						query.put("id",docnum);
+						BasicDBObject update = new BasicDBObject();
+						update.put("$set", new BasicDBObject("words."+Integer.toString(count)+".positions",URL));
+						collection.updateOne(
+								query,update);
+
+						return true;
+					}
+
+					count++;
+				}
+				// add link not found with first position
+				ArrayList<Integer>Arr=new ArrayList<Integer>();
+				Arr.add(index);
+				ArrayList<Document> Docs= new ArrayList<Document>();
+				Document dc=new Document("word",myword);
+				dc.append("positions",Arr);
+				ArrayList<Document> All=(ArrayList<Document>) doc.get("words");
+				All.add(dc);
+				// update
+				BasicDBObject query = new BasicDBObject();
+				query.put("id",docnum);
+				BasicDBObject update = new BasicDBObject();
+				update.put("$set", new BasicDBObject("words",All));
+				collection.updateOne(
+						query,update);
+
+
+				return true;
+			}
+
+		}
+		// add word
+		InsertDoc(myword,index,Docnumber);
+		return false;
+	}
+
+
+
 
 	public	static void main(String [] argv)
   {
@@ -150,7 +258,7 @@ public class MongoDB2 {
 		
 			MongoDB2 Mon=new MongoDB2(collection);
 
-
+    Mon.findDoc("Iten",10,16);
 	  Mon.find("Radwa",12,16);
 	System.out.println("Collection sampleCollection selected successfully");
   }   
