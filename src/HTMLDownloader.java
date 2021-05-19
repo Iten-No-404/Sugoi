@@ -14,7 +14,7 @@ public class HTMLDownloader {
         try {
             URL url = new URL(URL);
             BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream())); // Long boi
-            String fileName = Definitions.HTML_DLD_PATH + String.valueOf(URL.hashCode()) + ".HTML";
+            String fileName = Definitions.HTML_DLD_PATH + URL.hashCode() + ".HTML";
             BufferedWriter bw = new BufferedWriter(new FileWriter(fileName)); // Longer boi
 
             String line;
@@ -23,7 +23,7 @@ public class HTMLDownloader {
             }
             br.close();
             bw.close();
-            System.out.format("\n%s downloaded successfully", url);
+            System.out.format("\n%s downloaded successfully\n", url);
 
             return true;
         }

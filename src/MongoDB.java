@@ -86,19 +86,3 @@ public class MongoDB {
         System.out.println("Collection sampleCollection selected successfully");
     }
 }
-
-
-class word
-{
-    // Can also be a list for easy acess.
-    HashSet<String> paths;
-    // Other things?
-}
-
-class doc
-{
-    // Given a word, returns the number of appearances in the specific doc
-    // Can also map to a more complex object to carry
-    // where each appearance of the word is
-    HashMap<String,Integer> wordToAppearance;
-}
