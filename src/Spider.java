@@ -168,29 +168,29 @@ public class Spider {
             // If for some reason the URL is null, skip this iteration
             // Can't say we visited this website...
             if (URL != null) { // TODO: Look more into URIs
-
-
+                String uriHost = null;
                 // Will probably be useful to
                 // For addresses like https://stackoverflow.com/questions/21060992/how-does-java-resolve-a-relative-path-in-new-file
                 // This should return something like "stackoverflow.com"
                 try {
                     URI uri = new URI(URL);
-                    String uriHost = uri.getHost(), uriPath = uri.getPath(), uriProtocol = uri.getScheme();
+                    uriHost = uri.getHost();
+                    String uriPath = uri.getPath(), uriProtocol = uri.getScheme();
 
                     // TODO: Look into other robot.txt parsers
                     /*
-                    * Since the library seems to be off? (test with facebook and youtube's home pages,
-                    * fb should block while yt should let the crawler through)
-                    * The manual approach is to read through the file line by line, checking each user
-                    * agent for the crawler's name, or checking user-agent *, then somehow checking
-                    * if our current link follows from a blocked one.
-                    * Ex:
-                    * User-agent: *
-                    * Disallow: /forum/
-                    *
-                    * Let's say were at /forum/post1337, we maybe we need to split at "/" ?
-                    * Hmmmmmmmm
-                    * */
+                     * Since the library seems to be off? (test with facebook and youtube's home pages,
+                     * fb should block while yt should let the crawler through)
+                     * The manual approach is to read through the file line by line, checking each user
+                     * agent for the crawler's name, or checking user-agent *, then somehow checking
+                     * if our current link follows from a blocked one.
+                     * Ex:
+                     * User-agent: *
+                     * Disallow: /forum/
+                     *
+                     * Let's say were at /forum/post1337, we maybe we need to split at "/" ?
+                     * Hmmmmmmmm
+                     * */
 
 
                     // region not really sure about this part
@@ -209,7 +209,6 @@ public class Spider {
                             // wait till next time
                             // We have access, but should wait until we can recrawl again.
                             System.out.println("Grant is not null and there's a recrawl delay");
-
                         }
                     }
                     // endregion
@@ -222,7 +221,8 @@ public class Spider {
                 // Add the URL to the visited list if the page is downloaded
                 // or re-insert it into the toVisit list if not.
                 if (downloadSuccessful) {
-//                        spooder.visitedHosts.add(uriHost);
+                    if (uriHost != null)
+                        spooder.visitedHosts.add(uriHost);
                     spooder.visited.add(URL);
                     spooder.currentPageVisitCount++;
                 } else {
