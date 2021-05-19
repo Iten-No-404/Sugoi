@@ -4,8 +4,12 @@
       <root url="jar://$PROJECT_DIR$/src/mongo-java-driver-3.12.8.jar!/" />
       <root url="jar://$PROJECT_DIR$/src/mongo-java-driver-2.13.3-javadoc.jar!/" />
       <root url="jar://$PROJECT_DIR$/src/jsoup-1.13.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jsoup-1.13.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/mongo-java-driver-3.12.8.jar!/" />
     </CLASSES>
-    <JAVADOC />
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/lib/mongo-java-driver-2.13.3-javadoc.jar!/" />
+    </JAVADOC>
     <SOURCES />
   </library>
 </component>
