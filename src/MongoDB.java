@@ -30,7 +30,7 @@ public class MongoDB {
 
 
     }
-    private Boolean InsertDoc(String word, int position ,int DocNumber,String type)
+    private Boolean InsertDoc(String word, int position ,int DocNumber,String type,Boolean drop)
     {
 
 
@@ -41,6 +41,7 @@ public class MongoDB {
         ArrayList<Document> Docs= new ArrayList<Document>();
         Document dc=new Document("word",word);
         dc.append("positions",Arr);
+        dc.append("drop",drop);
         Docs.add(dc);
         Document doc=new Document("id",DocNumber);
         doc.append("words", Docs);
@@ -120,6 +121,7 @@ public class MongoDB {
                 ArrayList<Document> Docs= new ArrayList<Document>();
                 Document dc=new Document("word",myword);
                 dc.append("positions",Arr);
+                dc.append("drop",false);
                 ArrayList<Document> All=(ArrayList<Document>) doc.get("words");
                 All.add(dc);
                 // update
@@ -136,7 +138,7 @@ public class MongoDB {
 
         }
         // add word
-        InsertDoc(myword,index,Docnumber,type);
+        InsertDoc(myword,index,Docnumber,type,false);
         return false;
     }
   Boolean updateDocs(String myword ,int  index, int Docnumber,String type)
@@ -145,6 +147,7 @@ public class MongoDB {
       Iterator it= collection.find().iterator();
 
       Object next;
+      while(it.hasNext())
       {
           next= it.next();
           Document doc =(Document)next;
@@ -168,23 +171,45 @@ public class MongoDB {
                   String Word = (String) dc.get("word");
                   if(Word.equals(myword)) {
 
+                      System.out.println("hhhh");
                       // add position
-                   ArrayList<Document>URL=new ArrayList<Document>();
-                   Document words=new Document("index",index);
-                   words.append("type",type);
-                   URL.add(words);
+                      if(!(Boolean) dc.get("drop")) {
+                          System.out.println("hhhh");
+                          ArrayList<Document> URL = new ArrayList<Document>();
+                          Document words = new Document("index", index);
+                          words.append("type", type);
+                          URL.add(words);
 
 
+                          ArrayList<Document> All = (ArrayList<Document>) doc.get("words");
+                          BasicDBObject query = new BasicDBObject();
+                          query.put("id", docnum);
+                          BasicDBObject update = new BasicDBObject();
+                          update.put("$set", new BasicDBObject("words." + Integer.toString(count) + ".positions", URL));
+                          collection.updateOne(
+                                  query, update);
+                          update.put("$set", new BasicDBObject("words." + Integer.toString(count) + ".drop", true));
+                          collection.updateOne(
+                                  query, update);
+                      }
+                      else
+                      {
+                          System.out.println("i am here");
+                          ArrayList<Document> URL = (ArrayList<Document>) dc.get("positions");
+                          Document newpo=new Document("index",index);
+                          newpo.append("type",type);
+                          URL.add(newpo);
 
 
-                      ArrayList<Document> All=(ArrayList<Document>) doc.get("words");
-                      BasicDBObject query = new BasicDBObject();
-                      query.put("id",docnum);
-                      BasicDBObject update = new BasicDBObject();
-                      update.put("$set", new BasicDBObject("words."+Integer.toString(count)+".positions",URL));
-                      collection.updateOne(
-                              query,update);
+                          ArrayList<Document> All=(ArrayList<Document>) doc.get("words");
+                          BasicDBObject query = new BasicDBObject();
+                          query.put("id",docnum);
+                          BasicDBObject update = new BasicDBObject();
+                          update.put("$set", new BasicDBObject("words."+Integer.toString(count)+".positions",URL));
+                          collection.updateOne(
+                                  query,update);
 
+                      }
                       return true;
                   }
 
@@ -198,6 +223,7 @@ public class MongoDB {
               ArrayList<Document> Docs= new ArrayList<Document>();
               Document dc=new Document("word",myword);
               dc.append("positions",Arr);
+              dc.append("drop",false);
               ArrayList<Document> All=(ArrayList<Document>) doc.get("words");
               All.add(dc);
               // update
@@ -214,7 +240,7 @@ public class MongoDB {
 
       }
       // add word
-      InsertDoc(myword,index,Docnumber,type);
+      InsertDoc(myword,index,Docnumber,type,true);
       return false;
   }
 
@@ -237,6 +263,6 @@ public class MongoDB {
 
         MongoDB ObjectDoc=new MongoDB(collectionLink);
 
-        ObjectDoc.updateDocs("Esraa",8,17,"uuu");
+        ObjectDoc.updateDocs("Esraa",7,17,"uuu");
     }
 }

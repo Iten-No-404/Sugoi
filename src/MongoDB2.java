@@ -32,7 +32,7 @@ public class MongoDB2 {
 
 
    }
- private Boolean InsertWord(String word, int position ,int DocNumber,String type)
+ private Boolean InsertWord(String word, int position ,int DocNumber,String type,Boolean drop)
 	{
 
 		ArrayList<Document>Arr=new ArrayList<Document>();
@@ -42,6 +42,7 @@ public class MongoDB2 {
 		ArrayList<Document> Docs= new ArrayList<Document>();
 		Document dc=new Document("doc",DocNumber);
 		dc.append("positions",Arr);
+		dc.append("drop",drop);
 		Docs.add(dc);
 		Document doc=new Document("id",word);
 		doc.append("docs", Docs);
@@ -119,10 +120,12 @@ public class MongoDB2 {
 			   ArrayList<Document>Arr=new ArrayList<Document>();
 			   Document title=new Document("index",index);
 			   title.append("type",type);
+
 			   Arr.add(title);
 			   ArrayList<Document> Docs= new ArrayList<Document>();
 			   Document dc=new Document("doc",Docnumber);
 			   dc.append("positions",Arr);
+			   dc.append("drop",false);
 			   ArrayList<Document> All=(ArrayList<Document>) doc.get("docs");
 			   All.add(dc);
 			   // update
@@ -141,10 +144,10 @@ public class MongoDB2 {
 
 	   // add word
 	   System.out.println("insert");
-	   InsertWord(myword,index,Docnumber,type);
+	   InsertWord(myword,index,Docnumber,type,false);
    	 return false;
    }
-   Boolean UpdateWords(String myword ,int  index, int Docnumber,String type)
+   Boolean UpdateWords(String myword ,int  index, int Docnumber,String type )
    {
 	   Iterator it= collection.find().iterator();
 
@@ -176,19 +179,44 @@ public class MongoDB2 {
 				   if(docnumber==Docnumber) {
 
 					   // add position
-					   ArrayList<Document> newUpdate=new ArrayList<Document>();
-					   Document title=new Document("index",index);
-					   title.append("type",type);
-					   newUpdate.add(title);
+					    Boolean drop= (Boolean)  dc.get("drop");
+					    if(drop==false) {
+					    	System.out.println(" i am here");
+							ArrayList<Document> newUpdate = new ArrayList<Document>();
+							Document title = new Document("index", index);
+							title.append("type", type);
+							newUpdate.add(title);
 
 
-					   ArrayList<Document> All=(ArrayList<Document>) doc.get("docs");
-					   BasicDBObject query = new BasicDBObject();
-					   query.put("id",myword);
-					   BasicDBObject update = new BasicDBObject();
-					   update.put("$set", new BasicDBObject("docs."+Integer.toString(count)+".positions",newUpdate));
-					   collection.updateOne(
-							   query,update);
+							ArrayList<Document> All = (ArrayList<Document>) doc.get("docs");
+							BasicDBObject query = new BasicDBObject();
+							query.put("id", myword);
+							BasicDBObject update = new BasicDBObject();
+							update.put("$set", new BasicDBObject("docs." + Integer.toString(count) + ".positions", newUpdate));
+							collection.updateOne(
+									query, update);
+							update.put("$set", new BasicDBObject("docs." + Integer.toString(count) + ".drop", true));
+							collection.updateOne(
+									query, update);
+
+						}
+					    else
+						{
+							ArrayList<Document> mylink = (ArrayList<Document>)  dc.get("positions");
+							Document title=new Document("index",index);
+							title.append("type",type);
+							mylink.add(title);
+
+
+							ArrayList<Document> All=(ArrayList<Document>) doc.get("docs");
+							BasicDBObject query = new BasicDBObject();
+							query.put("id",myword);
+							BasicDBObject update = new BasicDBObject();
+							update.put("$set", new BasicDBObject("docs."+Integer.toString(count)+".positions",mylink));
+							collection.updateOne(
+									query,update);
+
+						}
 
 					   return true;
 				   }
@@ -203,6 +231,7 @@ public class MongoDB2 {
 			   ArrayList<Document> Docs= new ArrayList<Document>();
 			   Document dc=new Document("doc",Docnumber);
 			   dc.append("positions",Arr);
+			   dc.append("drop",false);
 			   ArrayList<Document> All=(ArrayList<Document>) doc.get("docs");
 			   All.add(dc);
 			   // update
@@ -221,7 +250,7 @@ public class MongoDB2 {
 
 	   // add word
 	   System.out.println("insert");
-	   InsertWord(myword,index,Docnumber,type);
+	   InsertWord(myword,index,Docnumber,type,true);
 	   return false;
    }
 
@@ -245,9 +274,9 @@ public class MongoDB2 {
 		
 			MongoDB2 ObjectWord=new MongoDB2(collectionWord);
 
-ObjectWord.UpdateWords("Radwa",1,1,"iii");
+ObjectWord.UpdateWords("Ra",8,7,"iii");
     //ObjectDoc.findDoc("Iten",10,16);
-	  //ObjectWord.findWord("Ra",12,7,"oh");
+	//  ObjectWord.findWord("Ra",12,7,"oh");
 	System.out.println("Collection sampleCollection selected successfully");
   }   
 }
