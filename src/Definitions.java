@@ -12,4 +12,5 @@ public class Definitions {
     public static final String visitedHostsFN = "./txt/visitedHosts.txt";
     //public  static  final MongoDatabase database = MongoClient.getDatabase("try");
     public static final String HTML_DLD_PATH = "./download/";
+    public static final String DENIED_SITES = "./txt/denied.txt";
 }
