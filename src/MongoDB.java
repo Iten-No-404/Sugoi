@@ -223,7 +223,7 @@ public class MongoDB {
               ArrayList<Document> Docs= new ArrayList<Document>();
               Document dc=new Document("word",myword);
               dc.append("positions",Arr);
-              dc.append("drop",false);
+              dc.append("drop",true);
               ArrayList<Document> All=(ArrayList<Document>) doc.get("words");
               All.add(dc);
               // update
@@ -243,10 +243,36 @@ public class MongoDB {
       InsertDoc(myword,index,Docnumber,type,true);
       return false;
   }
+    void  Resetdrop() {
+        Iterator it = collection.find().iterator();
+        Object next;
+        while (it.hasNext()) {
+
+            next = it.next();
+            Document doc =(Document)next;
+
+            Integer docnum = (Integer) doc.get("id");
+            List<String> Values = (List<String>) doc.get("words");
+
+            Object[] objects = Values.toArray();
+            int count = 0;
+            for (Object obj : objects) {
+
+
+                BasicDBObject query = new BasicDBObject();
+                query.put("id", docnum);
+                BasicDBObject update = new BasicDBObject();
+                update.put("$set", new BasicDBObject("words." + Integer.toString(count) + ".drop", true));
+                collection.updateOne(query, update);
+                count++;
+
+            }
+        }
+    }
 
 
 
-    public static void main(String[] argv) {
+            public static void main(String[] argv) {
         ConnectionString connString = new ConnectionString(
                 "mongodb://127.0.0.1:27017"
                 // connect to local host
