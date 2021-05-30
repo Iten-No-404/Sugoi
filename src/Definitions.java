@@ -13,4 +13,5 @@ public class Definitions {
     //public  static  final MongoDatabase database = MongoClient.getDatabase("try");
     public static final String HTML_DLD_PATH = "./download/";
     public static final String DENIED_SITES = "./txt/denied.txt";
+    public static final boolean USE_MONGO = true;
 }
