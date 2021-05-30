@@ -6,6 +6,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 
 import java.sql.Array;
+import java.sql.Connection;
 import java.util.Iterator;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.*;
@@ -24,15 +25,23 @@ import static com.mongodb.client.model.Updates.*;
 public class MongoDB2 {
 
 	// ...
-	private MongoCollection<Document> collection;
+	final  static ConnectionString Connection=new ConnectionString("mongodb://127.0.0.1:27017");
+	final  static  MongoClientSettings settings = MongoClientSettings.builder().applyConnectionString(Connection).retryWrites(true).build();
+	final  static  MongoClient mongoClient = MongoClients.create(settings);
+	final static MongoDatabase database = mongoClient.getDatabase("tr");
+	final static MongoCollection<Document> collectionWord = database.getCollection("Words");
+	final static MongoCollection<Document> collectionLink = database.getCollection("Links");
+
 //	MongoDatabase database;
- public MongoDB2( MongoCollection<Document> coll )
+
+ public MongoDB2( )
    {
-	  collection=coll;
+
 
 
    }
- private Boolean InsertWord(String word, int position ,int DocNumber,String type,Boolean drop)
+
+ private Boolean InsertWord(String word, int position ,String DocNumber,String type,Boolean drop)
 	{
 
 		ArrayList<Document>Arr=new ArrayList<Document>();
@@ -50,16 +59,16 @@ public class MongoDB2 {
 		Document doc=new Document("id",word);
 		doc.append("docs", Docs);
 		doc.append("IDE",getNDocuments()/1);
-		collection.insertOne(doc);
+		collectionWord.insertOne(doc);
 
 		return true;
 
 
 	}
   
-   Boolean findWord(String myword ,int  index, int Docnumber,String type)
+   Boolean findWord(String myword ,int  index, String Docnumber,String type)
    {
-	   Iterator it= collection.find().iterator();
+	   Iterator it= collectionWord.find().iterator();
 
 
 	   Object next;
@@ -85,10 +94,10 @@ public class MongoDB2 {
 			   for (Object obj : objects) {
 				   Document dc = (Document) obj;
 
-				   Integer docnumber = (Integer) dc.get("doc");
+				   String docnumber = (String) dc.get("doc");
 				   Integer TF=(Integer) dc.get("TF");
 				   System.out.println(TF);
-				   if(docnumber==Docnumber) {
+				   if(docnumber.equals(Docnumber)) {
 					   System.out.println(docnumber);
 					   ArrayList<Document> mylink = (ArrayList<Document>)  dc.get("positions");
 
@@ -114,12 +123,12 @@ public class MongoDB2 {
 					   query.put("id",myword);
 					   BasicDBObject update = new BasicDBObject();
 					   update.put("$set", new BasicDBObject("docs."+Integer.toString(count)+".positions",mylink));
-					   collection.updateOne(
+					   collectionWord.updateOne(
 							   query,update);
 					   TF++;
 					   System.out.println("ia m in");
 					   update.put("$set", new BasicDBObject("docs."+Integer.toString(count)+".TF",TF));
-					   collection.updateOne(
+					   collectionWord.updateOne(
 							   query,update);
 
 					   return true;
@@ -146,10 +155,10 @@ public class MongoDB2 {
 			   query.put("id",myword);
 			   BasicDBObject update = new BasicDBObject();
 			   update.put("$set", new BasicDBObject("docs",All));
-			   collection.updateOne(
+			   collectionWord.updateOne(
 					   query,update);
 			   update.put("$set", new BasicDBObject("IDE",IDE/All.size()));
-			   collection.updateOne(
+			   collectionWord.updateOne(
 					   query,update);
 
 
@@ -165,27 +174,16 @@ public class MongoDB2 {
    }
    int getNDocuments()
    {
-          // i assume i add words before docs
-	   ConnectionString connString = new ConnectionString(
-			   "mongodb://127.0.0.1:27017"
-			   // connect to local host
-	   );
-	   MongoClientSettings settings = MongoClientSettings.builder()
-			   .applyConnectionString(connString)
-			   .retryWrites(true)
-			   .build();
-	   MongoClient mongoClient = MongoClients.create(settings);
-	   MongoDatabase database = mongoClient.getDatabase("tr");
 
-	   MongoCollection<Document> collectionLink = database.getCollection("Links");
+
 	   long x=collectionLink.countDocuments();
 	   int y=(int)x;
-	    return y+1;
+	    return y;
 
    }
-   Boolean UpdateWords(String myword ,int  index, int Docnumber,String type )
+   Boolean UpdateWords(String myword ,int  index, String Docnumber,String type )
    {
-	   Iterator it= collection.find().iterator();
+	   Iterator it= collectionWord.find().iterator();
 
 
 	   Object next;
@@ -211,8 +209,8 @@ public class MongoDB2 {
 			   for (Object obj : objects) {
 				   Document dc = (Document) obj;
 
-				   Integer docnumber = (Integer) dc.get("doc");
-				   if(docnumber==Docnumber) {
+				   String docnumber = (String) dc.get("doc");
+				   if(docnumber.equals(Docnumber)) {
 
 					   // add position
 					    Boolean drop= (Boolean)  dc.get("drop");
@@ -230,14 +228,14 @@ public class MongoDB2 {
 							query.put("id", myword);
 							BasicDBObject update = new BasicDBObject();
 							update.put("$set", new BasicDBObject("docs." + Integer.toString(count) + ".positions", newUpdate));
-							collection.updateOne(
+							collectionWord.updateOne(
 									query, update);
 							update.put("$set", new BasicDBObject("docs." + Integer.toString(count) + ".drop", true));
-							collection.updateOne(
+							collectionWord.updateOne(
 									query, update);
 
 							update.put("$set", new BasicDBObject("docs."+Integer.toString(count)+".TF",1));
-							collection.updateOne(
+							collectionWord.updateOne(
 									query,update);
 
 						}
@@ -265,11 +263,11 @@ public class MongoDB2 {
 							query.put("id",myword);
 							BasicDBObject update = new BasicDBObject();
 							update.put("$set", new BasicDBObject("docs."+Integer.toString(count)+".positions",mylink));
-							collection.updateOne(
+							collectionWord.updateOne(
 									query,update);
 
 							update.put("$set", new BasicDBObject("docs."+Integer.toString(count)+".TF",TF));
-							collection.updateOne(
+							collectionWord.updateOne(
 									query,update);
 
 						}
@@ -297,10 +295,10 @@ public class MongoDB2 {
 			   query.put("id",myword);
 			   BasicDBObject update = new BasicDBObject();
 			   update.put("$set", new BasicDBObject("docs",All));
-			   collection.updateOne(
+			   collectionWord.updateOne(
 					   query,update);
 			   update.put("$set", new BasicDBObject("IDE",IDE/All.size()));
-			   collection.updateOne(
+			   collectionWord.updateOne(
 					   query,update);
 
 			   return true;
@@ -315,7 +313,7 @@ public class MongoDB2 {
    }
    void  Resetdrop()
    {
-	   Iterator it= collection.find().iterator();
+	   Iterator it= collectionWord.find().iterator();
 	   Object next;
 	   while(it.hasNext()) {
 
@@ -335,7 +333,7 @@ public class MongoDB2 {
 			   query.put("id",word);
 			   BasicDBObject update = new BasicDBObject();
 			   update.put("$set", new BasicDBObject("docs."+Integer.toString(count)+".drop",false));
-			   collection.updateOne(
+			   collectionWord.updateOne(
 					   query,update);
 			   count++;
 
@@ -347,7 +345,7 @@ public class MongoDB2 {
 Boolean UpdateIDE()
 {
   int NDocuments=getNDocuments();
-	Iterator it= collection.find().iterator();
+	Iterator it= collectionWord.find().iterator();
 
 
 	Object next;
@@ -364,7 +362,7 @@ Boolean UpdateIDE()
 //		System.out.println(IDE);
 //		System.out.println(All.size());
 		update.put("$set", new BasicDBObject("IDE",IDE/All.size()));
-		collection.updateOne(
+		collectionWord.updateOne(
 				query,update);
 	}
 	return true;
@@ -374,24 +372,13 @@ Boolean UpdateIDE()
 
 	public	static void main(String [] argv)
   {
-	ConnectionString connString = new ConnectionString(
-		"mongodb://127.0.0.1:27017"
-		// connect to local host
-	);
-	MongoClientSettings settings = MongoClientSettings.builder()
-		.applyConnectionString(connString)
-		.retryWrites(true)
-		.build();
-	MongoClient mongoClient = MongoClients.create(settings);
-	MongoDatabase database = mongoClient.getDatabase("tr");
-	MongoCollection<Document> collectionWord = database.getCollection("Words");
-	  MongoCollection<Document> collectionLink = database.getCollection("Links");
 
-			MongoDB2 ObjectWord=new MongoDB2(collectionWord);
 
-ObjectWord.UpdateIDE();
-    //ObjectDoc.findDoc("Iten",10,16);
-	//  ObjectWord.findWord("Ra",12,7,"oh");
+			MongoDB2 ObjectWord=new MongoDB2();
+ObjectWord.findWord("Esraa",5,"ll","ii");
+	  ObjectWord.findWord("Esraa",7,"kk","ii");
+//    ObjectWord.UpdateIDE();
+
 	System.out.println("Collection sampleCollection selected successfully");
   }   
 }

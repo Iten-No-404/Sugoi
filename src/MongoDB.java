@@ -12,6 +12,7 @@ import org.bson.types.ObjectId;
 
 import javax.print.Doc;
 import java.sql.ClientInfoStatus;
+import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.io.File;
@@ -20,17 +21,22 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MongoDB {
-    // ...
-    private MongoCollection<Document> collection;
+    final  static ConnectionString Connection=new ConnectionString("mongodb://127.0.0.1:27017");
+    final  static  MongoClientSettings settings = MongoClientSettings.builder().applyConnectionString(Connection).retryWrites(true).build();
+    final  static  MongoClient mongoClient = MongoClients.create(settings);
+    final static MongoDatabase database = mongoClient.getDatabase("tr");
+    final static MongoCollection<Document> collectionWord = database.getCollection("Words");
+    final static MongoCollection<Document> collectionLink = database.getCollection("Links");
 
 
-    public MongoDB( MongoCollection<Document> coll )
+    public MongoDB( )
     {
-        collection=coll;
+
 
 
     }
-    private Boolean InsertDoc(String word, int position ,int DocNumber,String type,Boolean drop)
+
+    private Boolean InsertDoc(String word, int position ,String DocNumber,String type,Boolean drop)
     {
 
 
@@ -45,29 +51,29 @@ public class MongoDB {
         Docs.add(dc);
         Document doc=new Document("id",DocNumber);
         doc.append("words", Docs);
-        collection.insertOne(doc);
+        collectionLink.insertOne(doc);
 
         return true;
 
 
     }
 
-    Boolean findDoc(String myword ,int  index, int Docnumber,String type)
+    public Boolean findDoc(String myword ,int  index, String Docnumber,String type)
     {
-        Iterator it= collection.find().iterator();
+        Iterator it= collectionLink.find().iterator();
 
         Object next;
         while(it.hasNext())
         {
             next= it.next();
             Document doc =(Document)next;
-            Integer docnum=-1;
+            String docnum;
 
-            docnum = (Integer) doc.get("id");
+            docnum = (String) doc.get("id");
 
 
 //			System.out.println(word);
-            if(Docnumber==docnum) {
+            if(Docnumber.equals(docnum)) {
                 List<String> Values = (List<String>) doc.get("words");
                 ArrayList<String> arr = new ArrayList<String>();
                 arr = (ArrayList<String>) Values;
@@ -104,7 +110,7 @@ public class MongoDB {
                         query.put("id",docnum);
                         BasicDBObject update = new BasicDBObject();
                         update.put("$set", new BasicDBObject("words."+Integer.toString(count)+".positions",URL));
-                        collection.updateOne(
+                        collectionLink.updateOne(
                                 query,update);
 
                         return true;
@@ -129,7 +135,7 @@ public class MongoDB {
                 query.put("id",docnum);
                 BasicDBObject update = new BasicDBObject();
                 update.put("$set", new BasicDBObject("words",All));
-                collection.updateOne(
+                collectionLink.updateOne(
                         query,update);
 
 
@@ -141,23 +147,23 @@ public class MongoDB {
         InsertDoc(myword,index,Docnumber,type,false);
         return false;
     }
-  Boolean updateDocs(String myword ,int  index, int Docnumber,String type)
+    public Boolean updateDocs(String myword ,int  index, String Docnumber,String type)
   {
 
-      Iterator it= collection.find().iterator();
+      Iterator it= collectionLink.find().iterator();
 
       Object next;
       while(it.hasNext())
       {
           next= it.next();
           Document doc =(Document)next;
-          Integer docnum=-1;
+          String docnum;
 
-          docnum = (Integer) doc.get("id");
+          docnum =(String) doc.get("id");
 
 
 //			System.out.println(word);
-          if(Docnumber==docnum) {
+          if(Docnumber.equals(docnum)) {
               List<String> Values = (List<String>) doc.get("words");
               ArrayList<String> arr = new ArrayList<String>();
               arr = (ArrayList<String>) Values;
@@ -186,10 +192,10 @@ public class MongoDB {
                           query.put("id", docnum);
                           BasicDBObject update = new BasicDBObject();
                           update.put("$set", new BasicDBObject("words." + Integer.toString(count) + ".positions", URL));
-                          collection.updateOne(
+                          collectionLink.updateOne(
                                   query, update);
                           update.put("$set", new BasicDBObject("words." + Integer.toString(count) + ".drop", true));
-                          collection.updateOne(
+                          collectionLink.updateOne(
                                   query, update);
                       }
                       else
@@ -206,7 +212,7 @@ public class MongoDB {
                           query.put("id",docnum);
                           BasicDBObject update = new BasicDBObject();
                           update.put("$set", new BasicDBObject("words."+Integer.toString(count)+".positions",URL));
-                          collection.updateOne(
+                          collectionLink.updateOne(
                                   query,update);
 
                       }
@@ -231,7 +237,7 @@ public class MongoDB {
               query.put("id",docnum);
               BasicDBObject update = new BasicDBObject();
               update.put("$set", new BasicDBObject("words",All));
-              collection.updateOne(
+              collectionLink.updateOne(
                       query,update);
 
 
@@ -243,8 +249,8 @@ public class MongoDB {
       InsertDoc(myword,index,Docnumber,type,true);
       return false;
   }
-    void  Resetdrop() {
-        Iterator it = collection.find().iterator();
+    public void  Resetdrop() {
+        Iterator it = collectionLink.find().iterator();
         Object next;
         while (it.hasNext()) {
 
@@ -263,32 +269,129 @@ public class MongoDB {
                 query.put("id", docnum);
                 BasicDBObject update = new BasicDBObject();
                 update.put("$set", new BasicDBObject("words." + Integer.toString(count) + ".drop", true));
-                collection.updateOne(query, update);
+                collectionLink.updateOne(query, update);
                 count++;
 
             }
         }
     }
+    public Boolean DeleteWordsFromdocs(String docvalue) {
+
+        Iterator it = collectionLink.find().iterator();
+        ArrayList<String>arr=new ArrayList<>();
+
+        Object next;
+        while (it.hasNext()) {
+            next = it.next();
+            Document doc = (Document) next;
+            String docnum;
+
+            docnum = (String) doc.get("id");
+            if (docvalue.equals(docnum)) {
+                List<String> Values = (List<String>) doc.get("words");
+
+
+                Object[] objects = Values.toArray();
+                int count = 0;
+                for (Object obj : objects) {
+                    Document dc = (Document) obj;
+
+                    String Word = (String) dc.get("word");
+                    Boolean drop=(Boolean) dc.get("drop");
+                    if(drop==false) //delete
+                    {
+                             Values.remove(count);
+                             arr.add(Word);
+
+
+                    }
+                    count++;
+
+                }
+                BasicDBObject query = new BasicDBObject();
+                query.put("id", docnum);
+                if(Values.size()>0) {
+
+                    BasicDBObject update = new BasicDBObject();
+                    update.put("$set", new BasicDBObject("words", Values));
+                    collectionLink.updateOne(
+                            query, update);
+                }
+                else
+                {
+
+                    collectionLink.deleteOne(query);
+                }
+
+                DeleteWordsFroWords(arr,docvalue);
+                return  true;
+
+            }
+
+
+        }
+        return  false;
+    }
+    public void DeleteWordsFroWords(ArrayList<String>arr,String docValue) {
+
+
+        Iterator it = collectionWord.find().iterator();
+
+
+        Object next;
+        for (int i = 0; i < arr.size(); i++) {
+            while (it.hasNext()) {
+                next = it.next();
+                Document doc = (Document) next;
+
+
+                String word = (String) doc.get("id");
+                if (word.equals(arr.get(i))) {
+                    List<String> Values = (List<String>) doc.get("docs");
+
+
+                    Object[] objects = Values.toArray();
+                    int count = 0;
+                    for (Object obj : objects) {
+                        Document dc = (Document) obj;
+
+                        String docnumber = (String) dc.get("doc");
+                        if (docnumber.equals(docValue)) {
+
+                                    Values.remove(count);
+                        }
+                        count++;
+                    }
+                    BasicDBObject query = new BasicDBObject();
+                    query.put("id",word);
+                    if(Values.size()>0) {
+
+                        BasicDBObject update = new BasicDBObject();
+                        update.put("$set", new BasicDBObject("docs",Values));
+                        collectionWord.updateOne(
+                                query,update);
+
+                    }
+                    else
+                    {
+
+                        collectionWord.deleteOne(query);
+                    }
+
+                }
+            }
+
+        }
+    }
 
 
 
-            public static void main(String[] argv) {
-        ConnectionString connString = new ConnectionString(
-                "mongodb://127.0.0.1:27017"
-                // connect to local host
-        );
-        MongoClientSettings settings = MongoClientSettings.builder()
-                .applyConnectionString(connString)
-                .retryWrites(true)
-                .build();
-        MongoClient mongoClient = MongoClients.create(settings);
-        MongoDatabase database = mongoClient.getDatabase("tr");
-
-        MongoCollection<Document> collectionLink = database.getCollection("Links");
+    public static void main(String[] argv) {
 
 
-        MongoDB ObjectDoc=new MongoDB(collectionLink);
 
-        ObjectDoc.updateDocs("Esraa",7,17,"uuu");
+        MongoDB ObjectDoc=new MongoDB();
+         ObjectDoc.DeleteWordsFromdocs("ll");
+     //ObjectDoc.findDoc("Esraa",7,"ll","uuu");
     }
 }
