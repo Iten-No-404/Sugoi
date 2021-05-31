@@ -24,15 +24,18 @@ import static com.mongodb.client.model.Updates.*;
 
 public class MongoDB2 {
 
-	// ...
+	// variables for create connection with data base
 	final  static ConnectionString Connection=new ConnectionString("mongodb://127.0.0.1:27017");
 	final  static  MongoClientSettings settings = MongoClientSettings.builder().applyConnectionString(Connection).retryWrites(true).build();
 	final  static  MongoClient mongoClient = MongoClients.create(settings);
+	// get database
 	final static MongoDatabase database = mongoClient.getDatabase("tr");
+	// get collection for Words
 	final static MongoCollection<Document> collectionWord = database.getCollection("Words");
+	// get Collection for Links
 	final static MongoCollection<Document> collectionLink = database.getCollection("Links");
 
-//	MongoDatabase database;
+
 
  public MongoDB2( )
    {
@@ -45,19 +48,26 @@ public class MongoDB2 {
 	{
 
 		ArrayList<Document>Arr=new ArrayList<Document>();
+		// postion of word
 		Document Title=new Document("index",position);
+		// type :H1 ,header ,// etc
 		Title.append("type",type);
 		Arr.add(Title);
+		// add URL
 		ArrayList<Document> Docs= new ArrayList<Document>();
 		Document dc=new Document("doc",DocNumber);
+		// add TF
 		dc.append("TF",1); // can be normalized by give the length of doc ????????????????? from where from stemming ?!
 		// should i  do normalize?
-
+		// add our index in array of positions which is array of documnets contains type &index
 		dc.append("positions",Arr);
+		// Boolean used in Update & delete
 		dc.append("drop",drop);
 		Docs.add(dc);
+		// insert word with its all inforamtion
 		Document doc=new Document("id",word);
 		doc.append("docs", Docs);
+		// add IDE
 		doc.append("IDE",getNDocuments()/1);
 		collectionWord.insertOne(doc);
 
@@ -65,7 +75,7 @@ public class MongoDB2 {
 
 
 	}
-  
+   // use this function to bulid indexer for first time
    Boolean findWord(String myword ,int  index, String Docnumber,String type)
    {
 	   Iterator it= collectionWord.find().iterator();
@@ -77,23 +87,22 @@ public class MongoDB2 {
 
 		   next= it.next();
 		   Document doc =(Document)next;
-
-			   String word= (String) doc.get("id");
-        System.out.println(word);
+		   //check if the word has been inserted before or not
+		   String word= (String) doc.get("id");
+           System.out.println(word);
 
 
 		   System.out.println(word);
 		   if(myword.equals(word)) {
+		   	// if found check if URL has been inserted before or not
 			   List<String> Values = (List<String>) doc.get("docs");
 			   ArrayList<String> arr = new ArrayList<String>();
-			   arr = (ArrayList<String>) Values;
 
-			   String[] arr2 = new String[arr.size()];
 			   Object[] objects = Values.toArray();
 			   int  count=0;
 			   for (Object obj : objects) {
 				   Document dc = (Document) obj;
-
+                       // if found check if position has been inserted
 				   String docnumber = (String) dc.get("doc");
 				   Integer TF=(Integer) dc.get("TF");
 				   System.out.println(TF);
@@ -101,10 +110,11 @@ public class MongoDB2 {
 					   System.out.println(docnumber);
 					   ArrayList<Document> mylink = (ArrayList<Document>)  dc.get("positions");
 
-					  // System.out.println(URL);
+
 					   Object[] objectsfinal = mylink.toArray();
 					   for (Object ob : objectsfinal) {
 					      Document my=(Document) ob;
+					      // if position found return and don't add it  , it means error happen!
 					   	if(index==	(Integer) my.get("index"))
 						   {
 						   	 return true;
@@ -112,7 +122,7 @@ public class MongoDB2 {
 						   }
 
 					   }
-					   // add position
+					   // add position to URL has been found
 					   Document title=new Document("index",index);
 					   title.append("type",type);
 					   mylink.add(title);
@@ -122,6 +132,7 @@ public class MongoDB2 {
 					   BasicDBObject query = new BasicDBObject();
 					   query.put("id",myword);
 					   BasicDBObject update = new BasicDBObject();
+					   // update database with new  index and TF
 					   update.put("$set", new BasicDBObject("docs."+Integer.toString(count)+".positions",mylink));
 					   collectionWord.updateOne(
 							   query,update);
@@ -144,13 +155,14 @@ public class MongoDB2 {
 			   Arr.add(title);
 			   ArrayList<Document> Docs= new ArrayList<Document>();
 			   Document dc=new Document("doc",Docnumber);
+			   // add to URL its first index & type &TF
 			   dc.append("positions",Arr);
 			   dc.append("drop",false);
 			   dc.append("TF",1);
 			   ArrayList<Document> All=(ArrayList<Document>) doc.get("docs");
 
 			   All.add(dc);
-			   // update
+			   // update data base with new URL &IDE
 			   BasicDBObject query = new BasicDBObject();
 			   query.put("id",myword);
 			   BasicDBObject update = new BasicDBObject();
@@ -167,7 +179,7 @@ public class MongoDB2 {
 
 	   }
 
-	   // add word
+	   // add word not found before
 	   System.out.println("insert");
 	   InsertWord(myword,index,Docnumber,type,false);
    	 return false;
@@ -175,12 +187,13 @@ public class MongoDB2 {
    int getNDocuments()
    {
 
+   	// get the total number of URL
+	   long totURL=collectionLink.countDocuments();
+	   return (int)totURL;
 
-	   long x=collectionLink.countDocuments();
-	   int y=(int)x;
-	    return y;
 
    }
+   // use this function to Update indexer
    Boolean UpdateWords(String myword ,int  index, String Docnumber,String type )
    {
 	   Iterator it= collectionWord.find().iterator();
@@ -192,18 +205,17 @@ public class MongoDB2 {
 
 		   next= it.next();
 		   Document doc =(Document)next;
-
+              // check if the word has been inserted before
 		   String word= (String) doc.get("id");
 		   System.out.println(word);
 
 
 		   System.out.println(word);
 		   if(myword.equals(word)) {
+		   	// if found check if URL has been inserted before
 			   List<String> Values = (List<String>) doc.get("docs");
 			   ArrayList<String> arr = new ArrayList<String>();
-			   arr = (ArrayList<String>) Values;
 
-			   String[] arr2 = new String[arr.size()];
 			   Object[] objects = Values.toArray();
 			   int  count=0;
 			   for (Object obj : objects) {
@@ -212,7 +224,8 @@ public class MongoDB2 {
 				   String docnumber = (String) dc.get("doc");
 				   if(docnumber.equals(Docnumber)) {
 
-					   // add position
+					   // Drop previous position if URL found ( assume position has been changed)
+					   // Drop it in only first time
 					    Boolean drop= (Boolean)  dc.get("drop");
 					   Integer TF=(Integer) dc.get("TF");
 					    if(drop==false) {
@@ -222,11 +235,12 @@ public class MongoDB2 {
 							title.append("type", type);
 							newUpdate.add(title);
 
-
+                             // add position ,type & update TF to old URL
 							ArrayList<Document> All = (ArrayList<Document>) doc.get("docs");
 							BasicDBObject query = new BasicDBObject();
 							query.put("id", myword);
 							BasicDBObject update = new BasicDBObject();
+							// update database
 							update.put("$set", new BasicDBObject("docs." + Integer.toString(count) + ".positions", newUpdate));
 							collectionWord.updateOne(
 									query, update);
@@ -239,20 +253,24 @@ public class MongoDB2 {
 									query,update);
 
 						}
+					    // drop only for first time
 					    else
 						{
+							// check if position  has been instered before
 							ArrayList<Document> mylink = (ArrayList<Document>)  dc.get("positions");
 							Object[] objectsfinal = mylink.toArray();
 							for (Object ob : objectsfinal) {
 								Document my=(Document) ob;
+								// if it found it means error has happened so return
 								if(index==	(Integer) my.get("index"))
 								{
+
 									return true;
 
 								}
 
 							}
-
+                             // if not found add position ,type and update TF to old URL
 							Document title=new Document("index",index);
 							title.append("type",type);
 							mylink.add(title);
@@ -262,6 +280,7 @@ public class MongoDB2 {
 							BasicDBObject query = new BasicDBObject();
 							query.put("id",myword);
 							BasicDBObject update = new BasicDBObject();
+							// update database
 							update.put("$set", new BasicDBObject("docs."+Integer.toString(count)+".positions",mylink));
 							collectionWord.updateOne(
 									query,update);
@@ -290,7 +309,7 @@ public class MongoDB2 {
 			   ArrayList<Document> All=(ArrayList<Document>) doc.get("docs");
 			   All.add(dc);
 			   int IDE=getNDocuments();
-			   // update
+			   // update database with new URL
 			   BasicDBObject query = new BasicDBObject();
 			   query.put("id",myword);
 			   BasicDBObject update = new BasicDBObject();
@@ -306,31 +325,28 @@ public class MongoDB2 {
 
 	   }
 
-	   // add word
+	   // add word not found
 	   System.out.println("insert");
 	   InsertWord(myword,index,Docnumber,type,true);
 	   return false;
    }
    void  Resetdrop()
    {
+   	// reset the value of Boolean drop to false after finishing update for all words
 	   Iterator it= collectionWord.find().iterator();
 	   Object next;
 	   while(it.hasNext()) {
 
 		   next = it.next();
 		   Document doc = (Document) next;
-
 		   String word = (String) doc.get("id");
 		   List<String> Values = (List<String>) doc.get("docs");
-
 		   Object[] objects = Values.toArray();
 		   int  count=0;
 		   for (Object obj : objects) {
-
-
-
 			   BasicDBObject query = new BasicDBObject();
 			   query.put("id",word);
+			   // update database with new value
 			   BasicDBObject update = new BasicDBObject();
 			   update.put("$set", new BasicDBObject("docs."+Integer.toString(count)+".drop",false));
 			   collectionWord.updateOne(
@@ -349,6 +365,7 @@ Boolean UpdateIDE()
 
 
 	Object next;
+	// Update IDE for all words after insert or update
 	while(it.hasNext()) {
 
 		next = it.next();
@@ -358,9 +375,8 @@ Boolean UpdateIDE()
 		ArrayList<Document> All=(ArrayList<Document>) doc.get("docs");
 		BasicDBObject query = new BasicDBObject();
 		query.put("id",word);
+		// update database with new value
 		BasicDBObject update = new BasicDBObject();
-//		System.out.println(IDE);
-//		System.out.println(All.size());
 		update.put("$set", new BasicDBObject("IDE",IDE/All.size()));
 		collectionWord.updateOne(
 				query,update);
@@ -377,7 +393,6 @@ Boolean UpdateIDE()
 			MongoDB2 ObjectWord=new MongoDB2();
 ObjectWord.findWord("Esraa",5,"ll","ii");
 	  ObjectWord.findWord("Esraa",7,"kk","ii");
-//    ObjectWord.UpdateIDE();
 
 	System.out.println("Collection sampleCollection selected successfully");
   }   
