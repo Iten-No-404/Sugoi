@@ -2,25 +2,14 @@ import com.mongodb.*;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.*;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Updates;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 
 
-import javax.print.Doc;
-import java.sql.ClientInfoStatus;
-import java.sql.Struct;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-public class MongoDB {
+public class Link {
     // variables for create connection with data base
     final  static ConnectionString Connection=new ConnectionString("mongodb://127.0.0.1:27017");
     final  static  MongoClientSettings settings = MongoClientSettings.builder().applyConnectionString(Connection).retryWrites(true).build();
@@ -34,7 +23,8 @@ public class MongoDB {
 
 
 
-    public MongoDB( )
+
+    public Link( )
     {
 
 
@@ -414,7 +404,7 @@ public class MongoDB {
 
 
 
-        MongoDB ObjectDoc=new MongoDB();
+        Link ObjectDoc=new Link();
          ObjectDoc.DeleteWordsFromdocs("ll");
 
     }

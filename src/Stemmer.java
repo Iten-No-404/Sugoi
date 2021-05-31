@@ -2,13 +2,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Stemmer implements Runnable {
-    private String Word;
-    private String actualvalue;
 
-    public Stemmer(String x) {
 
-        Word = x.toLowerCase();
-        actualvalue = x;
+    public Stemmer() {
+
+
     }
     public void run()
     { 
@@ -394,7 +392,7 @@ public class Stemmer implements Runnable {
     public static void main(String argv[]) {
         // let us check
 
-        Stemmer s = new Stemmer("SSES");
+        Stemmer s = new Stemmer();
 
         // System.out.println(s.vowel("xox"));
         // System.out.println(s.vowelwithindex("xox", 1));

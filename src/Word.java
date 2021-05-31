@@ -3,26 +3,16 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
 
-import java.sql.Array;
-import java.sql.Connection;
 import java.util.Iterator;
-import com.mongodb.client.model.UpdateOptions;
-import com.mongodb.client.result.*;
+
 import org.bson.Document;
-import org.bson.types.ObjectId;
 
 
-import javax.print.Doc;
 import java.util.List;
-import java.util.Arrays;
-import java.nio.CharBuffer;
 import java.util.ArrayList;
-import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Updates.*;
 
-public class MongoDB2 {
+public class Word {
 
 	// variables for create connection with data base
 	final  static ConnectionString Connection=new ConnectionString("mongodb://127.0.0.1:27017");
@@ -37,14 +27,14 @@ public class MongoDB2 {
 
 
 
- public MongoDB2( )
+ public Word( )
    {
 
 
 
    }
 
- private Boolean InsertWord(String word, int position ,String DocNumber,String type,Boolean drop)
+ private Boolean InsertWord(String word, int position ,String DocNumber,String type,Boolean drop,int lengthofdoc)
 	{
 
 		ArrayList<Document>Arr=new ArrayList<Document>();
@@ -57,7 +47,7 @@ public class MongoDB2 {
 		ArrayList<Document> Docs= new ArrayList<Document>();
 		Document dc=new Document("doc",DocNumber);
 		// add TF
-		dc.append("TF",1); // can be normalized by give the length of doc ????????????????? from where from stemming ?!
+		dc.append("TF",1.0/lengthofdoc);
 		// should i  do normalize?
 		// add our index in array of positions which is array of documnets contains type &index
 		dc.append("positions",Arr);
@@ -76,7 +66,7 @@ public class MongoDB2 {
 
 	}
    // use this function to bulid indexer for first time
-   Boolean findWord(String myword ,int  index, String Docnumber,String type)
+   Boolean findWord(String myword ,int  index, String Docnumber,String type,int lengthofdoc)
    {
 	   Iterator it= collectionWord.find().iterator();
 
@@ -104,7 +94,7 @@ public class MongoDB2 {
 				   Document dc = (Document) obj;
                        // if found check if position has been inserted
 				   String docnumber = (String) dc.get("doc");
-				   Integer TF=(Integer) dc.get("TF");
+				   double TF=(double) dc.get("TF");
 				   System.out.println(TF);
 				   if(docnumber.equals(Docnumber)) {
 					   System.out.println(docnumber);
@@ -136,7 +126,7 @@ public class MongoDB2 {
 					   update.put("$set", new BasicDBObject("docs."+Integer.toString(count)+".positions",mylink));
 					   collectionWord.updateOne(
 							   query,update);
-					   TF++;
+					   TF=mylink.size()/lengthofdoc;
 					   System.out.println("ia m in");
 					   update.put("$set", new BasicDBObject("docs."+Integer.toString(count)+".TF",TF));
 					   collectionWord.updateOne(
@@ -158,7 +148,7 @@ public class MongoDB2 {
 			   // add to URL its first index & type &TF
 			   dc.append("positions",Arr);
 			   dc.append("drop",false);
-			   dc.append("TF",1);
+			   dc.append("TF",1.0/lengthofdoc);
 			   ArrayList<Document> All=(ArrayList<Document>) doc.get("docs");
 
 			   All.add(dc);
@@ -181,7 +171,7 @@ public class MongoDB2 {
 
 	   // add word not found before
 	   System.out.println("insert");
-	   InsertWord(myword,index,Docnumber,type,false);
+	   InsertWord(myword,index,Docnumber,type,false, lengthofdoc);
    	 return false;
    }
    int getNDocuments()
@@ -194,7 +184,7 @@ public class MongoDB2 {
 
    }
    // use this function to Update indexer
-   Boolean UpdateWords(String myword ,int  index, String Docnumber,String type )
+   Boolean UpdateWords(String myword ,int  index, String Docnumber,String type ,int lengthofdoc)
    {
 	   Iterator it= collectionWord.find().iterator();
 
@@ -227,7 +217,7 @@ public class MongoDB2 {
 					   // Drop previous position if URL found ( assume position has been changed)
 					   // Drop it in only first time
 					    Boolean drop= (Boolean)  dc.get("drop");
-					   Integer TF=(Integer) dc.get("TF");
+					   double TF=(double) dc.get("TF");
 					    if(drop==false) {
 					    	System.out.println(" i am here");
 							ArrayList<Document> newUpdate = new ArrayList<Document>();
@@ -248,7 +238,7 @@ public class MongoDB2 {
 							collectionWord.updateOne(
 									query, update);
 
-							update.put("$set", new BasicDBObject("docs."+Integer.toString(count)+".TF",1));
+							update.put("$set", new BasicDBObject("docs."+Integer.toString(count)+".TF",1.0/lengthofdoc));
 							collectionWord.updateOne(
 									query,update);
 
@@ -275,7 +265,7 @@ public class MongoDB2 {
 							title.append("type",type);
 							mylink.add(title);
 
-                                TF++;
+                                TF=mylink.size()/lengthofdoc;
 							ArrayList<Document> All=(ArrayList<Document>) doc.get("docs");
 							BasicDBObject query = new BasicDBObject();
 							query.put("id",myword);
@@ -327,7 +317,7 @@ public class MongoDB2 {
 
 	   // add word not found
 	   System.out.println("insert");
-	   InsertWord(myword,index,Docnumber,type,true);
+	   InsertWord(myword,index,Docnumber,type,true, lengthofdoc);
 	   return false;
    }
    void  Resetdrop()
@@ -390,9 +380,9 @@ Boolean UpdateIDE()
   {
 
 
-			MongoDB2 ObjectWord=new MongoDB2();
-ObjectWord.findWord("Esraa",5,"ll","ii");
-	  ObjectWord.findWord("Esraa",7,"kk","ii");
+			Word ObjectWord=new Word();
+//ObjectWord.findWord("Esraa",5,"ll","ii");
+//	  ObjectWord.findWord("Esraa",7,"kk","ii");
 
 	System.out.println("Collection sampleCollection selected successfully");
   }   
