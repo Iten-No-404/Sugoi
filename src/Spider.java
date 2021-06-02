@@ -1,32 +1,54 @@
 import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 import com.panforge.robotstxt.RobotsTxt;
 
 import java.io.*;
+import java.lang.instrument.Instrumentation;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.net.URL;
 
+import org.bson.BsonDocument;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.jsoup.Jsoup;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-import java.util.concurrent.TimeUnit;
-// TODO: Convert the spider to use MongoDB to load and dump lists instead of files.
+// TODO Share robots.txt data between threads
+/* TODO Maybe create a wrapper to println so we can enable/disable printing with one bool
+    Might help since printing does affect performance, especially with how often it's done.
+ */
+
+// TODO Make threads sleep if there are no links available, once links are inserted, the threads should wake up.
+
+// TODO Cache the database and collection connections instead of calling getXYZ multiple times
+
+/* TODO Look into using an iterator/cursor instead of using db.coll.finOneAndDelete over and over
+    Might be faster due to fewer connections with the DB.
+ */
+
+/* TODO Check for valid HTML
+    Links like: https://upload.wikimedia.org/wikipedia/commons/a/af/Crazy_4K_drone_video_of_Hong_Kong%2C_China.webm
+    Might cause issues with parsing
+*/
+
+// Known issue: sometimes at the start, you can see that one thread downloads the same URL twice, no idea why..
 
 
+/* TODO Clean up the thread prints. Can be done through breaking each stage into its own string
+    then arranging them right before printing.
+    urlString, accessString, errorString
+    Maybe implement a logger....
+ */
 /*
-TODO: Take into account recrawling frequency.
+TODO: Take into account re-crawling frequency.
 I think it can be done by checking if the previous and current
 versions change much, then if they do, bump the frequency score up or the time down.
 Will require each visited URL to have a frequency field.
-Can also include a "last visited" field for periodic recrawling.
+Can also include a "last visited" field for periodic re-crawling.
 This will also require that we loop over already visited URLs and then add URLs that
 change frequently enough or are old enough to the toVisit list.
 */
@@ -40,38 +62,37 @@ visitedURL=
 }
  */
 
-public class Spider {
+public class Spider extends Thread {
 
-    private static final int MAX_PAGES = 150; /// < Max number of pages the crawler is allowed to visit.
-    /// We don't want to insert the same URL twice into the visited list.
-    private HashSet<String> visited = new HashSet<>();
-    private HashSet<String> visitedHosts = new HashSet<>();
-    /// Can also be an array, but a linked list is good if we want to expand so much
-    /// That finding a large contiguous memory block will be hard.
-    /// The speed loss of not using an array is not that big since the visiting of
-    /// pages and downloading
-    /// isn't really that fast anyway. We also don't access certain indecies.
-    /// Instead, we go through the
-    /// List element after element.
-    private List<String> toVisit = new LinkedList<>();
-    private HashSet<String> deniedVisit = new HashSet<>();
-
+    final MongoClient mClient;
     // A place to store all the parsed robot.txt files that we'll be using
     Map<String, HashSet<String>> All_rules = new HashMap<>();
+    ArrayList<org.bson.Document> visitedURLtoHTML;
+    StringBuilder currentIterMessage = new StringBuilder();
+    /// We don't want to insert the same URL twice into the visited list.
+
+    // TODO Remove these once we're fully using MongoDB
+    private HashSet<String> visited = new HashSet<>();
+    private HashSet<String> visitedHosts = new HashSet<>();
+    private List<String> toVisit = new LinkedList<>();
+    private HashSet<String> deniedVisit = new HashSet<>();
 
     private Integer currentPageVisitCount;
     private Boolean abort = false;
 
-    // Should check to_visit.txt, if empty, should load the seed. Otherwise, should
-    // load each line as a node.
-    // Does the same with visited.txt
-    public Spider() {
+    // Gets a reference to the MongoDB connection and a reference to its hashmap
+    public Spider(MongoClient client, ArrayList<org.bson.Document> listRef) {
         currentPageVisitCount = 0;
+        mClient = client;
+        visitedURLtoHTML = listRef;
     }
 
-    private String NextURL(boolean DB, MongoClient client) {
-        String next = null;
-        if (!DB) {
+    // Finds and deletes a URL in one step
+    // If we can't visit this URL for any reason, it will be re-inserted into the DB later
+    // Returns a URL or null if no URLs can be found
+    private String NextURL() {
+        if (!Definitions.USE_MONGO) {
+            String next;
             if (toVisit.isEmpty()) {
                 abort = true;
                 return null;
@@ -84,24 +105,32 @@ public class Spider {
 
             // In case the last extracted item was already visited
             if (toVisit.isEmpty() && visited.contains(next)) return null;
+            return next;
         } else {
-            var iter = client.getDatabase("URLs").getCollection("toVisit").find().iterator();
-            if (iter.hasNext())
-                next = (String) iter.next().get("URL");
+            String URL = "";
+            do {
+                org.bson.Document doc = mClient.getDatabase(Definitions.dbURL).getCollection(Definitions.cToVisit).findOneAndDelete(new BsonDocument());
+                if (doc != null) {
+                    URL = (String) doc.get(Definitions.kURL);
+                } else {
+                    abort = true;
+                    return null;
+                }
+            }
+            // Continue getting and removing a URL if it's already visited
+            while (mClient.getDatabase(Definitions.dbURL).getCollection(Definitions.cVisited).countDocuments(new org.bson.Document(Definitions.kURL, URL)) > 0);
+            return URL;
         }
-
-        return next;
     }
 
     // TODO: Work on the recrawl frequency
-    // TODO: Work on the multi-threading
 
     public Boolean ShouldContinue() {
-        return currentPageVisitCount < MAX_PAGES && !abort;
+        return currentPageVisitCount < Definitions.MAX_PAGES && !abort;
     }
 
-    public boolean CheckAcessPermissions(String URL, StringBuilder uriHost) {
-        boolean Access = true; // bool that checks whether we can visit this page or not
+    public Definitions.RobotsAuth CheckAccessPermissions(String URL, StringBuilder uriHost) {
+        Definitions.RobotsAuth status = Definitions.RobotsAuth.Granted; // bool that checks whether we can visit this page or not
 
         try {
             URI uri = new URI(URL);
@@ -132,11 +161,7 @@ public class Spider {
              * */
             // Delay so as to not get yeeted
             // idk if one second is enough
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+
 
             // Access Robot.txt and parse it to chek which pages we can visit later.
             HashSet<String> rules = new HashSet<>();
@@ -144,8 +169,14 @@ public class Spider {
             String[] temp;
             // Check if this robot.txt file was already parsed before
             if (All_rules.get(TopDomainName) == null) {
-                InputStream robotsTxtStream = new URL(uriProtocol, uriHost.toString(), "/robots.txt").openStream();
-                RobotsTxt robotsTxt = RobotsTxt.read(robotsTxtStream);
+                RobotsTxt robotsTxt;
+                try (InputStream robotsTxtStream = new URL(uriProtocol, uriHost.toString(), "/robots.txt").openStream()) {
+                    robotsTxt = RobotsTxt.read(robotsTxtStream);
+                } catch (IOException e) {
+//                    System.out.format("Thread " + Thread.currentThread().getId() + ", URL: %s does not have a robots.txt file\n", uriHost);
+                    currentIterMessage.append(TopDomainName).append(" does not have a robots.txt file. ");
+                    return Definitions.RobotsAuth.Granted;
+                }
 
                 String[] splits = robotsTxt.toString().split("\\R");
                 boolean inside_general = false, inside_Sugoi = false;
@@ -166,7 +197,13 @@ public class Spider {
                         temp = s.split(": ");
                         // This is a disallow statement, store it in the hashset.
                         if (temp[0].equals("Disallow")) {
-                            String decoded_path = java.net.URLDecoder.decode(temp[1], StandardCharsets.UTF_8);
+                            String decoded_path;
+                            try {
+                                decoded_path = java.net.URLDecoder.decode(temp[1], StandardCharsets.UTF_8);
+                            } catch (Exception e) {
+                                currentIterMessage.append("ERROR TRYING TO DECODE URL ").append(URL).append(" RETURNING ACCESS DENIED. ");
+                                return Definitions.RobotsAuth.Denied;
+                            }
                             rules.add(decoded_path);
                         } else if (temp[0].equals("Allow")) {
                             allowed.add(temp[1]);
@@ -191,7 +228,8 @@ public class Spider {
                 All_rules.put(TopDomainName, rules);
             } else {
                 rules = All_rules.get(TopDomainName);
-                System.out.println("Using the " + TopDomainName + " robots.txt");
+                currentIterMessage.append("using ").append(TopDomainName).append("'s robots.txt. ");
+//                System.out.println("Using the " + TopDomainName + " robots.txt");
             }
 
             temp = uriPath.split("/");
@@ -213,7 +251,7 @@ public class Spider {
                     i++;
                 }
                 if (rules.contains(path.toString())) {
-                    Access = false;
+                    status = Definitions.RobotsAuth.Denied;
                     break;
                 }
             }
@@ -222,20 +260,19 @@ public class Spider {
             // Last check
             path.append("/");
             if (rules.contains(path.toString()))
-                Access = false;
+                status = Definitions.RobotsAuth.Denied;
 
-        } catch (URISyntaxException | IOException e) {
+        } catch (URISyntaxException e) {
             e.printStackTrace();
         }
 
-        return Access;
+        return status;
     }
 
-    private List<String> ExtractLinks(String URL) {
+    private List<String> ExtractLinks(String HTML) {
         // This part handles extracting the links from the downloaded page
         // We first open the downloaded document
         // Then we parse it for all the links and references in it
-        File doc = new File(Definitions.HTML_DLD_PATH + URL.hashCode() + ".HTML");
         Document currentDoc = null;
         try {
             // TODO: Check if the link being for mobile matters (same with navigation stuff)
@@ -248,8 +285,9 @@ public class Spider {
             // The third argument takes the main part of the URL "wikipedia.com"
             // and in the case of /wiki/<anything here> we the third argument is put before it
             // so it becomes wikipedia.com/wiki/ <anything here>
-            currentDoc = Jsoup.parse(doc, "UTF-8", URL);
-        } catch (IOException e) {
+
+            currentDoc = Jsoup.parse(HTML/*, "UTF-8"*/);
+        } catch (Exception e) {
             e.printStackTrace();
         }
         // here we extract the links from the parsed document
@@ -260,115 +298,104 @@ public class Spider {
         List<String> pageLinks = new ArrayList<>();
         if (links != null)
             for (Element link : links) {
-                pageLinks.add(link.attr("abs:href"));
+                String attr = link.attr("abs:href");
+                // For some reason, the attr function returned empty strings
+                if (!attr.equals(""))
+                    pageLinks.add(attr);
             }
         return pageLinks;
     }
 
-    /// Dumps the lists and sets we use in runtime.
-    public void Finalize() {
-//        DumpLists();
-    }
-
     // TODO: move MongoDB functionality into functions to avoid duplicate code.
-    public static void main(String[] args) {
-        // Testing if the pages downloads correctly
-        Spider spooder = new Spider();
+    public void run() {
+        System.out.println("Crawler " + getName().toLowerCase(Locale.ROOT) + " Started");
 
-        // MongoDB connection init
-        MongoClient client = MongoClients.create("mongodb://127.0.0.1:27017");
-
-        // If no URLs in URLs.toVisit , insert the seed.
-        // Should create the DB and collection if they don't exist.
-        var toVisitHasElements = client.getDatabase("URLs").getCollection("toVisit").find().iterator().hasNext();
-        if (!toVisitHasElements) {
-            ArrayList<org.bson.Document> arr = new ArrayList<>();
-            ArrayList<String> seeds = new ArrayList<>();
-
-            // Load seed data
-            try (FileInputStream seed = new FileInputStream(Definitions.seedFN)) {
-                Scanner sc = new Scanner(seed);
-                while (sc.hasNextLine()) {
-                    seeds.add(sc.nextLine());
-                }
-                sc.close();
-            } catch (Exception e) {
-                System.out.println("ERROR WHILE SEEDING DATABASE");
-                e.printStackTrace();
+        while (this.ShouldContinue()) {
+            String URL;
+            synchronized (mClient) {
+                URL = NextURL();
             }
-
-            for (String url : seeds) {
-                arr.add(new org.bson.Document("URL", url));
-            }
-            client.getDatabase("URLs").getCollection("toVisit").insertMany(arr);
-        }
-
-        //int downloadedPage = 0;
-        while (spooder.ShouldContinue() ) {
-            String URL = spooder.NextURL(Definitions.USE_MONGO, client);
 
             // If for some reason the URL is null, skip this iteration
             // Can't say we visited this website...
             if (URL != null && !URL.equals("")) { // TODO: Look more into URIs
+                currentIterMessage.delete(0, currentIterMessage.length()); // Clear message
+                currentIterMessage.append(getName()).append("\t [").append(currentPageVisitCount).append("]: \t");
+
                 StringBuilder uriHost = new StringBuilder();
-                // Will probably be useful to
-                // For addresses like https://stackoverflow.com/questions/21060992/how-does-java-resolve-a-relative-path-in-new-file
-                // This should return something like "stackoverflow.com"
+                Definitions.RobotsAuth status = CheckAccessPermissions(URL, uriHost);
 
-                boolean Access = spooder.CheckAcessPermissions(URL, uriHost);
+                switch (status) {
+                    case Granted: {
+                        currentIterMessage.append("ACCESS GRANTED, PROCEEDING TO ").append(URL);
 
-                /* TODO: Maybe move from multiple bools into a satus variable?
-                    This would allow us to use a switch case instead of nested ifs.
-                */
-                if (Access) {
-                    boolean downloadSuccessful = HTMLDownloader.DownloadPage(URL);
+                        StringBuilder downloadedHTML = new StringBuilder();
+                        boolean downloadSuccessful = HTMLDownloader.DownloadPage(URL, downloadedHTML);
 
-                    // Add the URL to the visited list if the page is downloaded
-                    // or re-insert it into the toVisit list if not.
-                    if (downloadSuccessful) {
-                        // Remove the current URL from toVisit
-                        client.getDatabase("URLs").getCollection("toVisit").deleteOne(Filters.eq("URL", URL));
-                        List<String> extractedLinks = spooder.ExtractLinks(URL);
-                        if (!Definitions.USE_MONGO) {
-                            spooder.visitedHosts.add(uriHost.toString());
-                            spooder.toVisit.addAll(extractedLinks);
-                            spooder.visited.add(URL);
-                        } else {
-                            // Upsert the current URL into visitedHosts
-                            client.getDatabase("URLs").getCollection("visitedHosts").updateOne(Filters.eq("URL", uriHost.toString()),
-                                    new org.bson.Document("$set", new org.bson.Document("URL", uriHost.toString())), new UpdateOptions().upsert(true));
-                            // Upsert extracted links
-                            for (String extractedLink : extractedLinks) {
-                                client.getDatabase("URLs").getCollection("toVisit").updateOne(Filters.eq("URL", extractedLink),
-                                        new org.bson.Document("$set", new org.bson.Document("URL", extractedLink)), new UpdateOptions().upsert(true));
+                        // Add the URL to the visited list if the page is downloaded
+                        if (downloadSuccessful) {
+                            currentIterMessage.append(", download successful ");
+
+                            // Insert the downloaded HTML into the URL-HTML hashMap. Then Extract links
+                            org.bson.Document urlPage = new org.bson.Document(Definitions.kURL, URL).append("HTML", downloadedHTML.toString());
+                            visitedURLtoHTML.add(urlPage);
+
+
+                            List<String> extractedLinks = ExtractLinks(downloadedHTML.toString());
+
+                            if (!Definitions.USE_MONGO) {
+                                visitedHosts.add(uriHost.toString());
+                                toVisit.addAll(extractedLinks);
+                                visited.add(URL);
                             }
-                            // Upsert this just visited URL
-                            client.getDatabase("URLs").getCollection("visited").updateOne(Filters.eq("URL", URL),
-                                    new org.bson.Document("$set", new org.bson.Document("URL", URL)), new UpdateOptions().upsert(true));
-                        }
-                        spooder.currentPageVisitCount++;
-                    } else {
-                        if (!Definitions.USE_MONGO)
-                            spooder.toVisit.add(URL);
-                        else
-                            client.getDatabase("URLs").getCollection("toVisit").updateOne(Filters.eq("URL", URL),
-                                    new org.bson.Document("$set", new org.bson.Document("URL", URL)), new UpdateOptions().upsert(true));
-                    }
-                } else {
-                    if (!Definitions.USE_MONGO)
-                        spooder.deniedVisit.add(URL);
-                    else {
-                        client.getDatabase("URLs").getCollection("deniedVisit").updateOne(Filters.eq("URL", URL),
-                                new org.bson.Document("$set", new org.bson.Document("URL", URL)), new UpdateOptions().upsert(true));
+                            // Update visitedHosts, toVisit, and visited
+                            else {
+                                // Upsert the base URL into visitedHosts
+                                mClient.getDatabase(Definitions.dbURL).getCollection(Definitions.cVisitedHosts).updateOne(Filters.eq(Definitions.kURL, uriHost.toString()),
+                                        new org.bson.Document("$set", new org.bson.Document("URL", uriHost.toString())), new UpdateOptions().upsert(true));
 
-                        // Remove the current URL from toVisit
-                        client.getDatabase("URLs").getCollection("toVisit").deleteOne(Filters.eq("URL", URL));
-                        List<String> extractedLinks = spooder.ExtractLinks(URL);
+                                // Upsert extracted links
+                                for (String extractedLink : extractedLinks) {
+                                    mClient.getDatabase(Definitions.dbURL).getCollection(Definitions.cToVisit).updateOne(Filters.eq(Definitions.kURL, extractedLink),
+                                            new org.bson.Document("$set", new org.bson.Document("URL", extractedLink)), new UpdateOptions().upsert(true));
+                                }
+
+                                // Upsert this just visited URL
+                                mClient.getDatabase(Definitions.dbURL).getCollection(Definitions.cVisited).updateOne(Filters.eq(Definitions.kURL, URL),
+                                        new org.bson.Document("$set", new org.bson.Document("URL", URL)), new UpdateOptions().upsert(true));
+                            }
+
+                            currentPageVisitCount++;
+                        }
+                        // If download unsuccessful, reinsert/upsert the URL back into toVisit
+                        else {
+                            currentIterMessage.append(", download unsuccessful ");
+                            if (!Definitions.USE_MONGO)
+                                toVisit.add(URL);
+                            else
+                                mClient.getDatabase(Definitions.dbURL).getCollection(Definitions.cToVisit).updateOne(Filters.eq(Definitions.kURL, URL),
+                                        new org.bson.Document("$set", new org.bson.Document(Definitions.kURL, URL)), new UpdateOptions().upsert(true));
+                        }
+                        break;
+                    }
+                    // If access denied, add it to deniedVisit
+                    case Denied: {
+                        currentIterMessage.append("ACCESS DENIED to URL ").append(URL);
+                        if (!Definitions.USE_MONGO)
+                            deniedVisit.add(URL);
+                        else {
+                            mClient.getDatabase(Definitions.dbURL).getCollection(Definitions.cDeniedVisit).insertOne(
+                                    new org.bson.Document(Definitions.kURL, URL));
+
+                        }
+                        break;
                     }
                 }
-
             }
+            if (currentIterMessage.length() > 0)
+                System.out.println(currentIterMessage);
         }
-        spooder.Finalize();
+        System.out.println("Crawler " + getName() + " terminating. Crawled over " + currentPageVisitCount + " pages");
     }
+
 }

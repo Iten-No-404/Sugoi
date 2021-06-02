@@ -9,30 +9,51 @@ import java.net.URL;
 
 // Maybe we should move this to the crawler?
 public class HTMLDownloader {
-    public static boolean DownloadPage(String URL) {
+    public static boolean DownloadPage(String URL, StringBuilder HTML) {
         if (URL == null) return false;
+        String threadID = String.valueOf(Thread.currentThread().getId());
         try {
+
             URL url = new URL(URL);
             BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream())); // Long boi
-            String fileName = Definitions.HTML_DLD_PATH + URL.hashCode() + ".HTML";
-            BufferedWriter bw = new BufferedWriter(new FileWriter(fileName)); // Longer boi
 
             String line;
-            while ((line = br.readLine()) != null) {
-                bw.write(line);
+            /* TODO Find a way to not throw away anything past 16MB of HTML
+                Suggestion: use a backup buffer, better yet, a buffer list
+                pass the array to this function and when you're too big on one
+                you can grow the array and load into that buffer.
+                In the main loop, you can insert multiple documents under the same URL
+                 */
+            boolean tooBig =false;
+            while ((line = br.readLine()) != null && !tooBig) {
+                HTML.append(line);
+                tooBig = HTML.toString().length() > Definitions.BSON_MAX_SIZE;
             }
+            // If too big, keep removing until under 16MB
+            // While loop since we don't know what the last line's length is.
+            // Altough we can find it's length....
+            // TODO convert this from a while loop to just removing the last line's length off the end
+            if (tooBig)
+            {
+                while (HTML.toString().length() > Definitions.BSON_MAX_SIZE)
+                {
+                    HTML.delete(HTML.toString().length() - 1024,HTML.toString().length());
+                }
+                System.out.println(Thread.currentThread().getName() + ": URL " + URL + " EXCEEDED BSON MAX SIZE, REMOVING LAST 255 CHARS");
+            }
+
             br.close();
-            bw.close();
-            System.out.format("\n%s downloaded successfully\n", url);
+//            System.out.format("\n Thread %s: URL %s downloaded successfully\n",threadID ,url);
 
             return true;
         }
         // There must be a better way to do this than just returning false in all blocks..
         catch (MalformedURLException me) {
-            System.out.println("ERROR: MALFORMED URL");
+            System.out.format("Thread %s, URL: %s, ERROR: MALFORMED URL\n", threadID,URL);
             return false;
         } catch (IOException ie) {
-            System.out.println("ERROR: IO EXCEPTION");
+            System.out.format("Thread %s, URL: %s, ERROR: IO EXCEPTION\n", threadID,URL);
+
 
             return false;
         } catch (Exception e) {

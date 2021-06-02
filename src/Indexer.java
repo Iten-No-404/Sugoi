@@ -33,7 +33,7 @@ public class Indexer {
                 for(int i=0;i<words.length;i++)
                 {
                     // choose to build from zero or update
-                  if(Definitions.chooseindex)
+                  if(Definitions.CHOOSE_INDEX)
                   {
                              // build indexer
                       Build_Indexer(URL,e.tagName(),j,words[i],AllWords.length);
