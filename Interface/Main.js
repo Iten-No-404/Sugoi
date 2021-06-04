@@ -97,42 +97,44 @@ if(SpeechRecognition) {
   micBtn.addEventListener("click", micBtnClick);
   function micBtnClick() {
     if(micIcon.classList.contains("fa-microphone")) { // Start Voice Recognition
-      recognition.start(); // First time you have to allow access to mic!
+      recognition.start(); // Don't forget to allow access to the mic!
     }
     else {
-      recognition.stop();
+      recognition.stop();// Stop Voice Recognition
     }
   }
 
-  recognition.addEventListener("start", startSpeechRecognition); // <=> recognition.onstart = function() {...}
+  recognition.addEventListener("start", startSpeechRecognition); 
   function startSpeechRecognition() {
     micIcon.classList.remove("fa-microphone");
     micIcon.classList.add("fa-microphone-slash");
+    micIcon.style['color']="rgb(217, 91, 46)";
     inputBox.focus();
     console.log("Voice activated, SPEAK");
   }
 
-  recognition.addEventListener("end", endSpeechRecognition); // <=> recognition.onend = function() {...}
+  recognition.addEventListener("end", endSpeechRecognition); 
   function endSpeechRecognition() {
     micIcon.classList.remove("fa-microphone-slash");
     micIcon.classList.add("fa-microphone");
+    micIcon.style['color']="turquoise";
     inputBox.focus();
     console.log("Speech recognition service disconnected");
   }
 
-  recognition.addEventListener("result", resultOfSpeechRecognition); // <=> recognition.onresult = function(event) {...} - Fires when you stop talking
+  recognition.addEventListener("result", resultOfSpeechRecognition); 
   function resultOfSpeechRecognition(event) {
     const current = event.resultIndex;
     const transcript = event.results[current][0].transcript;
     
-    if(transcript.toLowerCase().trim()==="stop recording") {
+    if(transcript.toLowerCase().trim()==="stop listening") {
       recognition.stop();
     }
     else if(!inputBox.value) {
       inputBox.value = transcript;
     }
     else {
-      if(transcript.toLowerCase().trim()==="go") {
+      if(transcript.toLowerCase().trim()==="search") {
         searchForm.submit();
       }
       else {
