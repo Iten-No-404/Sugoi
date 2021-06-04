@@ -1,17 +1,18 @@
 import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 import com.panforge.robotstxt.RobotsTxt;
 
 import java.io.*;
-import java.lang.instrument.Instrumentation;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.net.URL;
 
-import org.bson.BsonDocument;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -22,12 +23,14 @@ import org.jsoup.Jsoup;
     Might help since printing does affect performance, especially with how often it's done.
  */
 
-// TODO Make threads sleep if there are no links available, once links are inserted, the threads should wake up.
 
-// TODO Cache the database and collection connections instead of calling getXYZ multiple times
 
-/* TODO Look into using an iterator/cursor instead of using db.coll.finOneAndDelete over and over
+/* DONE Look into using an iterator/cursor instead of using db.coll.finOneAndDelete over and over
     Might be faster due to fewer connections with the DB.
+
+    Seems like using coll.find().iterator() (which returns a cursor, funnily enough) gives you the
+    results of the DB query at that time (reasonable). It's also passed by reference. So when a thread
+    modifies it, the remaining threads will not see the modification
  */
 
 /* TODO Check for valid HTML
@@ -36,6 +39,7 @@ import org.jsoup.Jsoup;
 */
 
 // Known issue: sometimes at the start, you can see that one thread downloads the same URL twice, no idea why..
+// Known issue: the crawler does not distinguish website.com and website.com/ It counts them as 2 different URLS
 
 
 /* TODO Clean up the thread prints. Can be done through breaking each stage into its own string
@@ -67,9 +71,11 @@ public class Spider extends Thread {
     final MongoClient mClient;
     // A place to store all the parsed robot.txt files that we'll be using
     Map<String, HashSet<String>> All_rules = new HashMap<>();
-    ArrayList<org.bson.Document> visitedURLtoHTML;
     StringBuilder currentIterMessage = new StringBuilder();
     /// We don't want to insert the same URL twice into the visited list.
+    MongoDatabase mongoDB;
+    MongoCollection<org.bson.Document> cToVisit, cVisited, cDeniedVisit, cVisitedHosts, cHTML;
+    private Integer numActiveCrawlers;
 
     // TODO Remove these once we're fully using MongoDB
     private HashSet<String> visited = new HashSet<>();
@@ -81,45 +87,79 @@ public class Spider extends Thread {
     private Boolean abort = false;
 
     // Gets a reference to the MongoDB connection and a reference to its hashmap
-    public Spider(MongoClient client, ArrayList<org.bson.Document> listRef) {
+    public Spider(MongoClient client, Integer activeThreads) {
         currentPageVisitCount = 0;
         mClient = client;
-        visitedURLtoHTML = listRef;
+        numActiveCrawlers = activeThreads;
+
+        // Caching
+        mongoDB = mClient.getDatabase(Definitions.dbURL);
+        cVisited = mongoDB.getCollection(Definitions.cVisited);
+        cDeniedVisit = mongoDB.getCollection(Definitions.cDeniedVisit);
+        cVisitedHosts = mongoDB.getCollection(Definitions.cVisitedHosts);
+        cToVisit = mongoDB.getCollection(Definitions.cToVisit);
+        cHTML = mongoDB.getCollection(Definitions.cHTML);
     }
 
     // Finds and deletes a URL in one step
     // If we can't visit this URL for any reason, it will be re-inserted into the DB later
     // Returns a URL or null if no URLs can be found
     private String NextURL() {
-        if (!Definitions.USE_MONGO) {
-            String next;
-            if (toVisit.isEmpty()) {
-                abort = true;
-                return null;
-            }
-            // Loop through the list until we find a URL we haven't visited.
-            do {
-                next = toVisit.remove(0);
-            }
-            while (visited.contains(next) && !toVisit.isEmpty());
+        synchronized (mClient) {
+            {
+                if (!Definitions.USE_MONGO) {
+                    String next;
+                    if (toVisit.isEmpty()) {
+                        abort = true;
+                        return null;
+                    }
+                    // Loop through the list until we find a URL we haven't visited.
+                    do {
+                        next = toVisit.remove(0);
+                    }
+                    while (visited.contains(next) && !toVisit.isEmpty());
 
-            // In case the last extracted item was already visited
-            if (toVisit.isEmpty() && visited.contains(next)) return null;
-            return next;
-        } else {
-            String URL = "";
-            do {
-                org.bson.Document doc = mClient.getDatabase(Definitions.dbURL).getCollection(Definitions.cToVisit).findOneAndDelete(new BsonDocument());
-                if (doc != null) {
-                    URL = (String) doc.get(Definitions.kURL);
+                    // In case the last extracted item was already visited
+                    if (toVisit.isEmpty() && visited.contains(next)) return null;
+                    return next;
                 } else {
-                    abort = true;
-                    return null;
+                    String URL = "";
+                    int toVisitCount = (int) cToVisit.countDocuments();
+                    if (toVisitCount > 0) {
+                        do {
+                            URL = (String) cToVisit.findOneAndDelete(new org.bson.Document()).get(Definitions.kURL);
+                        }
+                        // Continue getting and removing a URL if it's already visited
+                        while (cVisited.countDocuments(new org.bson.Document(Definitions.kURL, URL)) > 0);
+
+                        // If there were 2 docs before pulling one, there should be one more.
+                        if (toVisitCount > 2) mClient.notifyAll();
+                    }
+                    // No more links, it's either that our previous batch ran out or there really are no more
+                    // links to visit in the DB
+                    else {
+                        // If no more links to visit in the DB
+                        // If there are other active crawlers that might add to these links, wait
+                        // Otherwise, terminate.
+                        if (numActiveCrawlers > 1) {
+                            try {
+                                numActiveCrawlers--;
+                                System.out.println(Thread.currentThread().getName() + ": No URLs available but at least " +
+                                        "one active crawler, waiting for its links...");
+                                mClient.wait();
+                            } catch (InterruptedException e) {
+                                System.out.println(Thread.currentThread().getName() + " new URLs added, waking up...");
+                                e.printStackTrace();
+                            }
+                        } else {
+                            numActiveCrawlers--;
+                            System.out.println(Thread.currentThread().getName() + ": No URLs available and no other " +
+                                    "active crawlers, terminating...");
+                        }
+                    }
+                    return URL;
                 }
             }
-            // Continue getting and removing a URL if it's already visited
-            while (mClient.getDatabase(Definitions.dbURL).getCollection(Definitions.cVisited).countDocuments(new org.bson.Document(Definitions.kURL, URL)) > 0);
-            return URL;
         }
     }
 
@@ -312,9 +352,7 @@ public class Spider extends Thread {
 
         while (this.ShouldContinue()) {
             String URL;
-            synchronized (mClient) {
-                URL = NextURL();
-            }
+            URL = NextURL();
 
             // If for some reason the URL is null, skip this iteration
             // Can't say we visited this website...
@@ -338,8 +376,7 @@ public class Spider extends Thread {
 
                             // Insert the downloaded HTML into the URL-HTML hashMap. Then Extract links
                             org.bson.Document urlPage = new org.bson.Document(Definitions.kURL, URL).append("HTML", downloadedHTML.toString());
-                            visitedURLtoHTML.add(urlPage);
-
+                            cHTML.insertOne(urlPage);
 
                             List<String> extractedLinks = ExtractLinks(downloadedHTML.toString());
 
@@ -351,17 +388,17 @@ public class Spider extends Thread {
                             // Update visitedHosts, toVisit, and visited
                             else {
                                 // Upsert the base URL into visitedHosts
-                                mClient.getDatabase(Definitions.dbURL).getCollection(Definitions.cVisitedHosts).updateOne(Filters.eq(Definitions.kURL, uriHost.toString()),
+                                cVisitedHosts.updateOne(Filters.eq(Definitions.kURL, uriHost.toString()),
                                         new org.bson.Document("$set", new org.bson.Document("URL", uriHost.toString())), new UpdateOptions().upsert(true));
 
                                 // Upsert extracted links
                                 for (String extractedLink : extractedLinks) {
-                                    mClient.getDatabase(Definitions.dbURL).getCollection(Definitions.cToVisit).updateOne(Filters.eq(Definitions.kURL, extractedLink),
+                                    cToVisit.updateOne(Filters.eq(Definitions.kURL, extractedLink),
                                             new org.bson.Document("$set", new org.bson.Document("URL", extractedLink)), new UpdateOptions().upsert(true));
                                 }
 
                                 // Upsert this just visited URL
-                                mClient.getDatabase(Definitions.dbURL).getCollection(Definitions.cVisited).updateOne(Filters.eq(Definitions.kURL, URL),
+                                cVisited.updateOne(Filters.eq(Definitions.kURL, URL),
                                         new org.bson.Document("$set", new org.bson.Document("URL", URL)), new UpdateOptions().upsert(true));
                             }
 
@@ -373,7 +410,7 @@ public class Spider extends Thread {
                             if (!Definitions.USE_MONGO)
                                 toVisit.add(URL);
                             else
-                                mClient.getDatabase(Definitions.dbURL).getCollection(Definitions.cToVisit).updateOne(Filters.eq(Definitions.kURL, URL),
+                                cToVisit.updateOne(Filters.eq(Definitions.kURL, URL),
                                         new org.bson.Document("$set", new org.bson.Document(Definitions.kURL, URL)), new UpdateOptions().upsert(true));
                         }
                         break;
@@ -384,9 +421,7 @@ public class Spider extends Thread {
                         if (!Definitions.USE_MONGO)
                             deniedVisit.add(URL);
                         else {
-                            mClient.getDatabase(Definitions.dbURL).getCollection(Definitions.cDeniedVisit).insertOne(
-                                    new org.bson.Document(Definitions.kURL, URL));
-
+                            cDeniedVisit.insertOne(new org.bson.Document(Definitions.kURL, URL));
                         }
                         break;
                     }

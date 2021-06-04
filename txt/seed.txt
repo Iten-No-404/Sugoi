@@ -1,2 +1,1 @@
-https://en.wikipedia.org/wiki/Main_Page
-https://stackoverflow.com/questions/21060992/how-does-java-resolve-a-relative-path-in-new-file
+https://stackoverflow.com

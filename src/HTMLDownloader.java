@@ -45,6 +45,9 @@ public class HTMLDownloader {
             br.close();
 //            System.out.format("\n Thread %s: URL %s downloaded successfully\n",threadID ,url);
 
+            // If the download returned nothing, this URL hasn't been really visited
+            if(HTML.toString().equals(""))
+                return false;
             return true;
         }
         // There must be a better way to do this than just returning false in all blocks..
