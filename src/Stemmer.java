@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Stemmer implements Runnable {
+public class Stemmer  {
 
 
     public Stemmer() {
@@ -377,14 +377,23 @@ public class Stemmer implements Runnable {
 
     public String PorterStemming(String s)
     {
+        if(s!=null)
         s= s.toLowerCase();
+        if(s!=null)
         s = step1a(s);
+        if(s!=null)
         s = step1b(s);
+        if(s!=null)
         s = step1c(s);
+        if(s!=null)
         s = step2(s);
+        if(s!=null)
         s = Step3(s);
+        if(s!=null)
         s = Step4(s);
+        if(s!=null)
         s = Step5_a(s);
+        if(s!=null)
         s = Step5_b(s);
         return s;
     }

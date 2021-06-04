@@ -15,7 +15,7 @@ public class Link {
     final static MongoClientSettings settings = MongoClientSettings.builder().applyConnectionString(Connection).retryWrites(true).build();
     final static MongoClient mongoClient = MongoClients.create(settings);
     // get database
-    final static MongoDatabase database = mongoClient.getDatabase("tr");
+    final static MongoDatabase database = mongoClient.getDatabase("Indexer");
     // get collection for Words
     final static MongoCollection<Document> collectionWord = database.getCollection("Words");
     // get Collection for Links
