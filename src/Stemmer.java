@@ -3,13 +3,34 @@ import java.util.Arrays;
 
 public class Stemmer  {
 
-
+ public static  final String stopwotds[]={
+         "i","me","my","myself","we","our","ours","ourselves","you",
+         "your", "yours", "yourself", "yourselves","he", "him", "his", "himself","she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their", "theirs", "themselves",
+         "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are", "was", "were", "be",
+         "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and", "but", "if", "or",
+         "because", "as", "until", "while", "of", "at", "by", "for", "with", "about", "against", "between", "into", "through", "during", "before", "after",
+         "above", "below", "to", "from", "up", "down", "in", "out", "on", "off", "over", "under", "again", "further", "then", "once", "here", "there",
+         "when", "where", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other", "some",
+         "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now"
+ };
     public Stemmer() {
 
 
     }
 
-
+  public  Boolean checkstopwords(String word)
+  {
+      if(word==null)
+          return  false;
+      if(word.length()<=1)
+          return  false;
+      for(int i=0;i<stopwotds.length;i++)
+      {
+          if(word.equals(stopwotds[i]))
+              return  false;
+      }
+      return  true;
+  }
     public Boolean vowel(String x) {
         //check the word contain  vowel char or no
         if (x.indexOf("a") != -1 || x.indexOf("e") != -1 || x.indexOf("i") != -1 || x.indexOf("o") != -1
@@ -374,6 +395,8 @@ public class Stemmer  {
     {
         if(s!=null)
         s= s.toLowerCase();
+        if(!checkstopwords(s))
+            return  null;
         if(s!=null)
         s = step1a(s);
         if(s!=null)
