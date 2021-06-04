@@ -95,9 +95,9 @@ public class Word {
                        // if found check if position has been inserted
 				   String docnumber = (String) dc.get("doc");
 				   double TF=(double) dc.get("TF");
-				   System.out.println(TF);
+				 //  System.out.println(TF);
 				   if(docnumber.equals(Docnumber)) {
-					   System.out.println(docnumber);
+					//   System.out.println(docnumber);
 					   ArrayList<Document> mylink = (ArrayList<Document>)  dc.get("positions");
 
 
@@ -127,7 +127,7 @@ public class Word {
 					   collectionWord.updateOne(
 							   query,update);
 					   TF=mylink.size()/lengthofdoc;
-					   System.out.println("ia m in");
+					  // System.out.println("ia m in");
 					   update.put("$set", new BasicDBObject("docs."+Integer.toString(count)+".TF",TF));
 					   collectionWord.updateOne(
 							   query,update);
@@ -170,7 +170,7 @@ public class Word {
 	   }
 
 	   // add word not found before
-	   System.out.println("insert");
+	  // System.out.println("insert");
 	   InsertWord(myword,index,Docnumber,type,false, lengthofdoc);
    	 return false;
    }
@@ -197,10 +197,10 @@ public class Word {
 		   Document doc =(Document)next;
               // check if the word has been inserted before
 		   String word= (String) doc.get("id");
-		   System.out.println(word);
+		   //System.out.println(word);
 
 
-		   System.out.println(word);
+		 //  System.out.println(word);
 		   if(myword.equals(word)) {
 		   	// if found check if URL has been inserted before
 			   List<String> Values = (List<String>) doc.get("docs");
@@ -219,7 +219,7 @@ public class Word {
 					    Boolean drop= (Boolean)  dc.get("drop");
 					   double TF=(double) dc.get("TF");
 					    if(drop==false) {
-					    	System.out.println(" i am here");
+					    //	System.out.println(" i am here");
 							ArrayList<Document> newUpdate = new ArrayList<Document>();
 							Document title = new Document("index", index);
 							title.append("type", type);
@@ -316,7 +316,7 @@ public class Word {
 	   }
 
 	   // add word not found
-	   System.out.println("insert");
+	  // System.out.println("insert");
 	   InsertWord(myword,index,Docnumber,type,true, lengthofdoc);
 	   return false;
    }
