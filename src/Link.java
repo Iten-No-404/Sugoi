@@ -188,7 +188,7 @@ public class Link {
                         }
                         // drop only first time
                         else {
-                            System.out.println("i am here");
+                           // System.out.println("i am here");
                             ArrayList<Document> URL = (ArrayList<Document>) dc.get("positions");
                             // chek if position has inserted before
                             Object[] objectsfinal = URL.toArray();

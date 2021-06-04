@@ -8,12 +8,7 @@ public class Stemmer  {
 
 
     }
-    public void run()
-    { 
-        // for nothing untill now 
-        System.out.print("ooo");
 
-    }
 
     public Boolean vowel(String x) {
         //check the word contain  vowel char or no

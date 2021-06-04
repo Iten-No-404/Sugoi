@@ -16,7 +16,7 @@ public class Definitions {
     public static final String HTML_DLD_PATH = "./download/";
     public static final String DENIED_SITES = "./txt/denied.txt";
     public static final boolean USE_MONGO = true;
-    public static final Boolean CHOOSE_INDEX = true;
+    public static  Boolean CHOOSE_INDEX = true;
     public static final int MAX_PAGES = 100; /// < Max number of pages the crawler is allowed to visit.
 
     // Some DB definitions in case we want to change the collection names
