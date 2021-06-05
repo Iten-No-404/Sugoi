@@ -69,7 +69,7 @@ public class Link {
         Object next;
 
         // TODO search using a specific query, no need to loop over all document
-        while (collectionLink.countDocuments(new BsonDocument(AAAAAAAAAAAAAAAAAAAa))> 0) {
+        while (collectionLink.countDocuments(new BsonDocument(/*AAAAAAAAAAAAAAAAAAAa*/))> 0) {
 
             Iterator it = collectionLink.find().iterator();
             next = it.next();
