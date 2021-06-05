@@ -268,7 +268,7 @@ public class Link {
             next = it.next();
             Document doc = (Document) next;
 
-            Integer docnum = (Integer) doc.get("id");
+            String docnum = (String) doc.get("id");
             List<String> Values = (List<String>) doc.get("words");
 
             Object[] objects = Values.toArray();
