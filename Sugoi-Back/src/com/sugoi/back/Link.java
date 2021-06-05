@@ -67,11 +67,13 @@ public class Link {
     public Boolean findDoc(String myword, int index, String Docnumber, String type) {
 
         Object next;
+        Iterator it = collectionLink.find().iterator();
+        ArrayList<String> arr = new ArrayList<>();
 
-        // TODO search using a specific query, no need to loop over all document
-        while (collectionLink.countDocuments(new BsonDocument(AAAAAAAAAAAAAAAAAAAa))> 0) {
 
-            Iterator it = collectionLink.find().iterator();
+        while (it.hasNext()) {
+
+
             next = it.next();
             Document doc = (Document) next;
             String docnum;
@@ -288,7 +290,7 @@ public class Link {
     // it is used to check if the word has been deleted from URL to delete it from Links collection & Words collections
     public Boolean DeleteWordsFromdocs(String docvalue) {
 
-        // TODO Here too! Don't forget about the while condition
+
         Iterator it = collectionLink.find().iterator();
         ArrayList<String> arr = new ArrayList<>();
 
@@ -345,8 +347,6 @@ public class Link {
                 return true;
 
             }
-
-
         }
         return false;
     }
@@ -355,7 +355,8 @@ public class Link {
     private void DeleteWordsFroWords(ArrayList<String> arr, String docValue) {
 
         // the first parameter is the removed words , the second is the URL which remove the words
-        // TODO Here too! Don't forget about the while condition
+
+        // the first parameter is the removed words , the second is the URL which remove the words
         Iterator it = collectionWord.find().iterator();
 
 

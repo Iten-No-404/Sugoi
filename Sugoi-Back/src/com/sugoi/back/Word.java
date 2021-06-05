@@ -76,11 +76,12 @@ public class Word {
 
     // use this function to bulid indexer for first time
     Boolean findWord(String myword, int index, String Docnumber, String type, int lengthofdoc) {
+
         Iterator it = collectionWord.find(new Document("id", myword)).iterator();
 
 
         Object next;
-        while (it.hasNext()) {
+        if (it.hasNext()) {
 
             next = it.next();
             Document doc = (Document) next;
@@ -101,7 +102,7 @@ public class Word {
                     Document dc = (Document) obj;
                     // if found check if position has been inserted
                     String docnumber = (String) dc.get("doc");
-                    double TF = (double) dc.get("TF");
+                    double TF = (((Number)dc.get("TF")).doubleValue() );
                     //  System.out.println(TF);
                     if (docnumber.equals(Docnumber)) {
                         //   System.out.println(docnumber);
@@ -132,7 +133,7 @@ public class Word {
                         update.put("$set", new BasicDBObject("docs." + Integer.toString(count) + ".positions", mylink));
                         collectionWord.updateOne(
                                 query, update);
-                        TF = mylink.size() / lengthofdoc;
+                        TF = (mylink.size()*1.0)/ lengthofdoc;
                         // System.out.println("ia m in");
                         update.put("$set", new BasicDBObject("docs." + Integer.toString(count) + ".TF", TF));
                         collectionWord.updateOne(
@@ -192,11 +193,11 @@ public class Word {
 
     // use this function to Update indexer
     Boolean UpdateWords(String myword, int index, String Docnumber, String type, int lengthofdoc) {
-        Iterator it = collectionWord.find().iterator();
+        Iterator it = collectionWord.find(new Document("id", myword)).iterator();
 
 
         Object next;
-        while (it.hasNext()) {
+        if (it.hasNext()) {
 
             next = it.next();
             Document doc = (Document) next;
@@ -298,7 +299,7 @@ public class Word {
                 Document dc = new Document("doc", Docnumber);
                 dc.append("positions", Arr);
                 dc.append("drop", true);
-                dc.append("TF", 1);
+                dc.append("TF", 1.0/lengthofdoc);
                 ArrayList<Document> All = (ArrayList<Document>) doc.get("docs");
                 All.add(dc);
                 int IDE = getNDocuments();
