@@ -343,8 +343,7 @@ public class Word {
                 // update database with new value
                 BasicDBObject update = new BasicDBObject();
                 update.put("$set", new BasicDBObject("docs." + Integer.toString(count) + ".drop", false));
-                collectionWord.updateOne(
-                        query, update);
+                collectionWord.updateOne(query, update);
                 count++;
 
             }

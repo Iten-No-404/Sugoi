@@ -3,7 +3,7 @@ let suggestions = [];
 function readsuggestions()  
 {  
      var txtFile = new XMLHttpRequest();  
-     txtFile.open("GET", "./Interface/Suggestions.txt", true);
+     txtFile.open("GET", "./Suggestions.txt", true);
      txtFile.onreadystatechange = function()   
      {  
           if (txtFile.readyState === 4)   
@@ -80,10 +80,10 @@ function showSuggestions(list){
 const icon = searchWrapper.querySelector(".search-icon");
 icon.addEventListener("click", searchiconclick);
   function searchiconclick() {
-      // var redirect = "../Interface/Results.html?q=" + inputBox.value + "&page=1";
-      // icon.setAttribute("href", redirect);
-      // icon.style['color']="rgb(59, 173, 103)";
-      // window.location.replace(redirect);
+      var redirect = "./Results.html?q=" + inputBox.value + "&page=1";
+      icon.setAttribute("href", redirect);
+      icon.style['color']="rgb(59, 173, 103)";
+      window.location.replace(redirect);
   }
 
 

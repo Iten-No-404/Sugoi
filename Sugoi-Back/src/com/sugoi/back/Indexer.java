@@ -86,8 +86,8 @@ public class Indexer extends Thread {
         // I really don't understand why?
 
 //        Iterator it = cHTMLIndexed.find(new Document()).iterator();
-
-        while (cHTMLUnindexed.countDocuments() > 0) {
+        int indexed = 0;
+        while (cHTMLUnindexed.countDocuments() > 0 && indexed < 9) {
             // connect to link
             /*
              *  doc = undindexed.findoneanddelete()

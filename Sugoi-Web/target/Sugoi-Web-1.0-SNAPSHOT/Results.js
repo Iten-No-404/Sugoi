@@ -98,7 +98,7 @@ function createPagination(totalPages, page){
 }
 
   function movetopage(newpagenum) {
-    var redirect = "../Interface/Results.html?q=" + urlParams['q'] + "&page="+parseInt(newpagenum);
+    var redirect = "./Results.html?q=" + urlParams['q'] + "&page="+parseInt(newpagenum);
     icon.setAttribute("href", redirect);
     window.location.replace(redirect);
   }
