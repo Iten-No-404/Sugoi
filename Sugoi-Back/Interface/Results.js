@@ -27,6 +27,7 @@ var urlParams = parseURLParams(urlString);
 
 function loadpage()  
 {
+  readsuggestions();
   console.log("Query= "+ urlParams['q']);
   console.log("Current Page= "+ urlParams['page']);
   page=parseInt(urlParams['page'][0]);
@@ -101,3 +102,4 @@ function createPagination(totalPages, page){
     icon.setAttribute("href", redirect);
     window.location.replace(redirect);
   }
+  
