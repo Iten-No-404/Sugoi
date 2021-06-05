@@ -41,6 +41,8 @@ inputBox.onkeyup = (e)=>{
             //filtering array value and user characters to lowercase and return only those words which are start with user entered chars
             return data.toLocaleLowerCase().startsWith(userData.toLocaleLowerCase()); 
         });
+        if(emptyArray.length>6)//Remove this if to show all suggestions 
+          emptyArray = emptyArray.slice(emptyArray.length-6,emptyArray.length);
         emptyArray = emptyArray.map((data)=>{
             // passing return data inside li tag
             return data = '<li>'+ data +'</li>';
@@ -80,6 +82,7 @@ icon.addEventListener("click", searchiconclick);
   function searchiconclick() {
       var redirect = "../Interface/Results.html?q=" + inputBox.value + "&page=1";
       icon.setAttribute("href", redirect);
+      icon.style['color']="rgb(59, 173, 103)";
       window.location.replace(redirect);
   }
 
@@ -157,7 +160,7 @@ else {
 }
 
 ////// TO DO: 
-//  1. Add the searched terms to the Suggestions.txt.
-//  2. Finish the HTML and CSS for the results page.
-//  3. Paging for the results page.
-//  4. Handle when & or any other symbols is written in the input
+//  1. Add the searched terms to the Suggestions.txt. --> After connecting the back and front ends
+//  2. Finish the HTML and CSS for the results page. --> Done :D
+//  3. Paging for the results page. --> Almost Done (needs back and front connection)
+//  4. Handle when & or any other symbols is written in the input --> If we have time...

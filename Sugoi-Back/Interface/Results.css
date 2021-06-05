@@ -15,16 +15,21 @@ body {
 }
 
 .logo-holder {
-  width: 20%;
+  position: absolute;
+  width: 25%;
   height: 55px;
+  left: 5%;
   float: left;
 }
 
 .bar-holder {
-  /* position: relative; */
+  z-index: 10;
+  position: absolute;
   height: 55px;
   background: #fff;
-  width: 80%;
+  width: 75%;
+  top: 4%;
+  left: 20%;
   border-radius: 5px;
   box-shadow: 0px 1px 5px 3px rgba(0, 0, 0, 0.12);
   float: right;
@@ -46,10 +51,11 @@ body {
   line-height: 55px;
   position: absolute;
   top: 4%;
-  right: 16%;
+  right: 6%;
   text-align: center;
   font-size: 20px;
-  color: rgb(59, 173, 103);
+  color: turquoise;
+  cursor: pointer;
 }
 
 .search-icon-2 button {
@@ -57,7 +63,7 @@ body {
   line-height: 55px;
   position: absolute;
   top: 4%;
-  right: 13%;
+  right: 2%;
   text-align: center;
   font-size: 20px;
   color: turquoise;
@@ -69,6 +75,7 @@ body {
 
 .suggestions-com {
   /*padding: 10px 8px;*/
+  z-index: 10;
   padding: 0px;
   max-height: 280px;
   overflow-y: auto;
