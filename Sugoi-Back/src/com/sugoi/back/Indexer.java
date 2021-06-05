@@ -10,29 +10,15 @@ import org.bson.Document;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.*;
 
-import com.mongodb.*;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.*;
-
-import java.util.ArrayList;
-import java.util.*;
-
 import org.jsoup.safety.Whitelist;
 
 
 import java.util.Iterator;
 
 
-import java.util.ArrayList;
-import java.util.*;
 import java.util.regex.Pattern;
 
-import org.jsoup.*;
 import org.jsoup.select.Elements;
-
-import javax.print.Doc;
 
 public class Indexer extends Thread {
     final static ConnectionString Connection = new ConnectionString("mongodb://127.0.0.1:27017");
@@ -41,7 +27,9 @@ public class Indexer extends Thread {
     // get database
     final static MongoDatabase database = mongoClient.getDatabase("URLs");
     // get collection for Words
-    final static MongoCollection<org.bson.Document> collectionHTML = database.getCollection("HTML");
+    final static MongoCollection<org.bson.Document> cHTMLUnindexed = database.getCollection("HTML");
+    final static MongoCollection<org.bson.Document> cHTMLIndexed = database.getCollection("IHTML");
+
     // get database
     final static MongoDatabase databaseindexer = mongoClient.getDatabase("Indexer");
     // get Collection for Links
@@ -89,9 +77,16 @@ public class Indexer extends Thread {
         // TODO: remove if & else from here if you will use Thread !!!!!!!!!!!!!!!!!!!!!!!!!!!! SO Important
         // I really don't understand why?
 
-        while (collectionHTML.countDocuments() > 0) {
+        Iterator it = cHTMLIndexed.find(new Document()).iterator();
+
+        while (cHTMLUnindexed.countDocuments() > 0) {
             // connect to link
-            Document doc = collectionHTML.findOneAndDelete(new Document());
+            /*
+             *  doc = undindexed.findoneanddelete()
+             *  indexed.insert(doc);
+             * */
+            org.bson.Document doc = cHTMLUnindexed.findOneAndDelete(new Document());
+            cHTMLIndexed.insertOne(doc);
 
             // get URL of page
             String URL = (String) doc.get("URL");
@@ -108,14 +103,22 @@ public class Indexer extends Thread {
             String AllWords[] = stemmer.Spliter(text);
 
             int j = 0;
-            // get all elemnts
+            // get all elements
             for (Element e : elements) {
+
+                if (e.tagName().equals("header") || e.tagName().equals("footer") || e.tagName().equals("#root"))
+                    continue;
 
                 String[] words = stemmer.Spliter(e.text());
                 for (int i = 0; i < words.length; i++) {
-
                     // If the this "word" is a number, skip it.
                     if (isNumeric(words[i])) continue;
+
+                    // Find the position of the word with respect to the whole text
+                    String eText = e.text();
+                    if (words[i] != null)
+                        j = eText.indexOf(words[i], j);
+                    else continue;
 
                     // choose to build from zero or update
                     if (Definitions.CHOOSE_INDEX) {
@@ -141,10 +144,12 @@ public class Indexer extends Thread {
                 Link Links = new Link();
                 Word Words = new Word();
                 // delete removed words
+
                 Links.DeleteWordsFromdocs(URL);
                 // reset the status
                 Links.Resetdrop();
                 Words.Resetdrop();
+
                 // Update IDE
                 Words.UpdateIDE();
             }
