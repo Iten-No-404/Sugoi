@@ -67,11 +67,11 @@ public class Link {
     public Boolean findDoc(String myword, int index, String Docnumber, String type) {
 
         Object next;
-        Iterator it = collectionLink.find().iterator();
+        Iterator it = collectionLink.find(new BasicDBObject("id",Docnumber)).iterator();
         ArrayList<String> arr = new ArrayList<>();
 
 
-        while (it.hasNext()) {
+        if (it.hasNext()) {
 
 
             next = it.next();
@@ -153,10 +153,10 @@ public class Link {
     public Boolean updateDocs(String myword, int index, String Docnumber, String type) {
 
         // TODO Here too! Don't forget about the while condition
-        Iterator it = collectionLink.find().iterator();
+        Iterator it = collectionLink.find(new BasicDBObject("id",Docnumber)).iterator();
 
         Object next;
-        while (it.hasNext()) {
+        if (it.hasNext()) {
             next = it.next();
             Document doc = (Document) next;
             String docnum;
