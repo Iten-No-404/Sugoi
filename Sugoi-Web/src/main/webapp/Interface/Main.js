@@ -3,7 +3,7 @@ let suggestions = [];
 function readsuggestions()  
 {  
      var txtFile = new XMLHttpRequest();  
-     txtFile.open("GET", "http://localhost:5500/Interface/Suggestions.txt", true);  
+     txtFile.open("GET", "http://localhost:5500/Sugoi-Web/src/main/webapp/Interface/Suggestions.txt", true);
      txtFile.onreadystatechange = function()   
      {  
           if (txtFile.readyState === 4)   
@@ -28,7 +28,6 @@ function readsuggestions()
 const searchWrapper = document.querySelector(".bar-holder");
 const inputBox = searchWrapper.querySelector("input");
 const suggBox = searchWrapper.querySelector(".suggestions-com");
-const icon = searchWrapper.querySelector(".search-icon");
 let linkTag = searchWrapper.querySelector("a");
 let webLink;
 
@@ -39,9 +38,11 @@ inputBox.onkeyup = (e)=>{
     let emptyArray = [];
     if(userData){
         emptyArray = suggestions.filter((data)=>{
-            //filtering array value and user characters to lowercase and return only those words which are start with user enetered chars
+            //filtering array value and user characters to lowercase and return only those words which are start with user entered chars
             return data.toLocaleLowerCase().startsWith(userData.toLocaleLowerCase()); 
         });
+        if(emptyArray.length>6)//Remove this if to show all suggestions 
+          emptyArray = emptyArray.slice(emptyArray.length-6,emptyArray.length);
         emptyArray = emptyArray.map((data)=>{
             // passing return data inside li tag
             return data = '<li>'+ data +'</li>';
@@ -76,6 +77,17 @@ function showSuggestions(list){
     suggBox.innerHTML = listData;
 }
 
+const icon = searchWrapper.querySelector(".search-icon");
+icon.addEventListener("click", searchiconclick);
+  function searchiconclick() {
+      var redirect = "..Interface/Results.html?q=" + inputBox.value + "&page=1";
+      redirect = encodeURI(redirect);
+      icon.setAttribute("href", redirect);
+      icon.style['color']="rgb(59, 173, 103)";
+      window.location.replace(redirect);
+  }
+
+
 const searchForm = document.querySelector("#search-form");
 const info = document.querySelector(".info");
 
@@ -87,7 +99,7 @@ if(SpeechRecognition) {
   
   const recognition = new SpeechRecognition();
   recognition.continuous = true;
-   //recognition.lang = "ar-EG"; //If we want an Arabic recognition instead.//Very Inacurate though
+   //recognition.lang = "ar-EG"; //If we want an Arabic recognition instead.//Very Inaccurate though
    //recognition.lang = "ja";// The Japanese one on the other hand is pretty spot on --> I tried saying this long name (乙女ゲームの破滅フラグしかない悪役令嬢に転生してしまった) and it caught it all correctly. :O
   inputBox.style.paddingRight = "50px";
 
@@ -149,7 +161,7 @@ else {
 }
 
 ////// TO DO: 
-//  1. Add the searched terms to the Suggestions.txt.
-//  2. Finish the HTML and CSS for the results page.
-//  3. Paging for the results page.
-//  4. 
+//  1. Add the searched terms to the Suggestions.txt. --> After connecting the back and front ends
+//  2. Finish the HTML and CSS for the results page. --> Done :D
+//  3. Paging for the results page. --> Almost Done (needs back and front connection)
+//  4. Handle when & or any other symbols is written in the input --> If we have time...
