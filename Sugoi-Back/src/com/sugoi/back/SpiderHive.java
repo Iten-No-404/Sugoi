@@ -6,8 +6,7 @@ import com.mongodb.client.MongoCursor;
 import org.bson.BsonMaximumSizeExceededException;
 
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.*;
 
 /* TODO Create a URL queue to streamline and speedup crawler URL acquisition.
     It will work like this:
@@ -20,7 +19,7 @@ import java.util.Scanner;
 public class SpiderHive {
     Spider[] crawlers;
     MongoClient mClient;
-
+    Map<String, HashSet<String>> All_rules = new HashMap<>();
     SpiderHive(int numThreads) {
 
         // MongoDB connection init
@@ -30,7 +29,7 @@ public class SpiderHive {
         crawlers = new Spider[numThreads];
 
         for (int i = 0; i < numThreads; i++) {
-            crawlers[i] = new Spider(mClient, activeThreads);
+            crawlers[i] = new Spider(mClient, activeThreads, All_rules);
         }
 
     }
@@ -46,7 +45,8 @@ public class SpiderHive {
         // Should create the DB and collection if they don't exist.
         long toVisitElements = mClient.getDatabase("URLs").getCollection("toVisit").countDocuments();
         if (toVisitElements == 0) {
-            System.out.println("The toVisit collection has no elements, loading seed...");
+            if (Definitions.SECONDARY_CRAWLER_PRINT)
+                System.out.println("The toVisit collection has no elements, loading seed...");
             ArrayList<org.bson.Document> arr = new ArrayList<>();
             ArrayList<String> seeds = new ArrayList<>();
 
@@ -58,17 +58,19 @@ public class SpiderHive {
                 }
                 sc.close();
             } catch (Exception e) {
-                System.out.println("ERROR WHILE SEEDING DATABASE");
+                if (Definitions.SECONDARY_CRAWLER_PRINT)
+                    System.out.println("ERROR WHILE SEEDING DATABASE");
                 e.printStackTrace();
             }
 
             for (String url : seeds) {
-                System.out.println("Seed URL Loaded: " + url);
+                if (Definitions.SECONDARY_CRAWLER_PRINT)
+                    System.out.println("Seed URL Loaded: " + url);
                 arr.add(new org.bson.Document("URL", url));
             }
             mClient.getDatabase("URLs").getCollection("toVisit").insertMany(arr);
-
-            System.out.println("Beginning crawl...");
+            if (Definitions.SECONDARY_CRAWLER_PRINT)
+                System.out.println("Beginning crawl...");
         }
 
 
@@ -89,7 +91,8 @@ public class SpiderHive {
 
         // We should have numThreads hashmaps with the websites each crawler has visited
         // }
-        System.out.println("Crawl finished. Approximately " + Definitions.NUM_THREADS*Definitions.MAX_PAGES + " links crawled in " + (endTime - startTime) / 1000 + " seconds with " + Definitions.NUM_THREADS
+        if (Definitions.SECONDARY_CRAWLER_PRINT)
+            System.out.println("Crawl finished. Approximately " + Definitions.NUM_THREADS*Definitions.MAX_PAGES + " links crawled in " + (endTime - startTime) / 1000 + " seconds with " + Definitions.NUM_THREADS
                 + " threads");
 
     }
