@@ -258,12 +258,13 @@ public class Link {
         return false;
     }
 
-    public void Resetdrop() {
+    public void Resetdrop(String URL) {
         // TODO Here too! Don't forget about the while condition
-        Iterator it = collectionLink.find().iterator();
+        Iterator it = collectionLink.find(new
+                BasicDBObject("id",URL)).iterator();
         Object next;
         // reset the value of Boolean drop to false after finishing update for all URLs
-        while (it.hasNext()) {
+        if (it.hasNext()) {
 
             next = it.next();
             Document doc = (Document) next;
@@ -291,11 +292,12 @@ public class Link {
     public Boolean DeleteWordsFromdocs(String docvalue) {
 
 
-        Iterator it = collectionLink.find().iterator();
+        Iterator it = collectionLink.find(new BasicDBObject("id",docvalue)).iterator();
+
         ArrayList<String> arr = new ArrayList<>();
 
         Object next;
-        while (it.hasNext()) {
+        if(it.hasNext()) {
             // go to the   current URL data after update
             next = it.next();
             Document doc = (Document) next;
@@ -355,13 +357,14 @@ public class Link {
         // the first parameter is the removed words , the second is the URL which remove the words
 
         // the first parameter is the removed words , the second is the URL which remove the words
-        Iterator it = collectionWord.find().iterator();
+
 
 
         Object next;
         // loop on array of removed words to delete them
         for (int i = 0; i < arr.size(); i++) {
-            while (it.hasNext()) {
+            Iterator it = collectionWord.find(new BasicDBObject("id",arr.get(i))).iterator();
+          if(it.hasNext()) {
                 next = it.next();
                 Document doc = (Document) next;
                 // check if the current word in database

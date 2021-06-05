@@ -163,7 +163,7 @@ public class Indexer extends Thread {
 
                 Links.DeleteWordsFromdocs(URL);
                 // reset the status
-                Links.Resetdrop();
+                Links.Resetdrop(URL);
                 Words.Resetdrop();
 
                 // Update IDE
