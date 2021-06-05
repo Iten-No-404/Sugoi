@@ -220,4 +220,7 @@
     <MESSAGE value="QueryProcess" />
     <option name="LAST_COMMIT_MESSAGE" value="QueryProcess" />
   </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/Sugoi$Config1.ic" NAME="Config1 Coverage Results" MODIFIED="1621609572226" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+  </component>
 </project>

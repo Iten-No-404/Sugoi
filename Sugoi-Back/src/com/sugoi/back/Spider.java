@@ -21,8 +21,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.jsoup.Jsoup;
 
-// TODO Share robots.txt data between threads
-/* TODO Maybe create a wrapper to println so we can enable/disable printing with one bool
+// DONE Share robots.txt data between threads
+/* DONE Maybe create a wrapper to println so we can enable/disable printing with one bool
     Might help since printing does affect performance, especially with how often it's done.
  */
 
@@ -36,7 +36,7 @@ import org.jsoup.Jsoup;
     modifies it, the remaining threads will not see the modification
  */
 
-/* TODO Check for valid HTML
+/* DONE Check for valid HTML
     Links like: https://upload.wikimedia.org/wikipedia/commons/a/af/Crazy_4K_drone_video_of_Hong_Kong%2C_China.webm
     Might cause issues with parsing
 */
@@ -44,13 +44,14 @@ import org.jsoup.Jsoup;
 // Known issue: sometimes at the start, you can see that one thread downloads the same URL twice, no idea why..
 // Known issue: the crawler does not distinguish website.com and website.com/ It counts them as 2 different URLS
 
+// TODO: solve the bug where a link gets visited twice at the start
 
 /* TODO Clean up the thread prints. Can be done through breaking each stage into its own string
     then arranging them right before printing.
     urlString, accessString, errorString
     Maybe implement a logger....
  */
-/*
+/* Not needed anymore?
 TODO: Take into account re-crawling frequency.
 I think it can be done by checking if the previous and current
 versions change much, then if they do, bump the frequency score up or the time down.
@@ -73,7 +74,7 @@ public class Spider extends Thread {
 
     final MongoClient mClient;
     // A place to store all the parsed robot.txt files that we'll be using
-    Map<String, HashSet<String>> All_rules = new HashMap<>();
+    Map<String, HashSet<String>> All_rules;
     StringBuilder currentIterMessage = new StringBuilder();
     /// We don't want to insert the same URL twice into the visited list.
     MongoDatabase mongoDB;
@@ -90,11 +91,11 @@ public class Spider extends Thread {
     private Boolean abort = false;
 
     // Gets a reference to the MongoDB connection and a reference to its hashmap
-    public Spider(MongoClient client, Integer activeThreads) {
+    public Spider(MongoClient client, Integer activeThreads, Map <String, HashSet<String>> rules) {
         currentPageVisitCount = 0;
         mClient = client;
         numActiveCrawlers = activeThreads;
-
+        All_rules = rules;
         // Caching
         mongoDB = mClient.getDatabase(Definitions.dbURL);
         cVisited = mongoDB.getCollection(Definitions.cVisited);
@@ -127,15 +128,26 @@ public class Spider extends Thread {
                     return next;
                 } else {
                     String URL = "";
+                    boolean Unwanted_extension;
                     int toVisitCount = (int) cToVisit.countDocuments();
                     if (toVisitCount > 0) {
                         do {
+
+                            Unwanted_extension = false;
                             URL = (String) cToVisit.findOneAndDelete(new org.bson.Document()).get(Definitions.kURL);
+                            // Some extensions that would indicate that this link points to something that's not an HTML page (video, image, etc..)
+                            if (URL.contains(".webm") || URL.contains(".png") || URL.contains(".jpg") || URL.contains(".svg") || URL.contains(".jpeg") ||
+                                    URL.contains(".mp4") || URL.contains(".mp3") || URL.contains(".mov") || URL.contains(".wav") || URL.contains(".wmv") ||
+                                    URL.contains(".mkv") || URL.contains(".flv") || URL.contains(".avi") || URL.contains(".api") || URL.contains(".js") ||
+                                    URL.contains(".script"))
+                                Unwanted_extension = true;
+                            if (Unwanted_extension && Definitions.PRIMARY_CRAWLER_PRINT)
+                                System.out.println(URL + " does not point to an html page");
                         }
                         // Continue getting and removing a URL if it's already visited
-                        while (cVisited.countDocuments(new org.bson.Document(Definitions.kURL, URL)) > 0 ||
-                               cVisited.countDocuments(new org.bson.Document(Definitions.kURL, URL + '/')) > 0 ||
-                                cVisited.countDocuments(new org.bson.Document(Definitions.kURL, URL.substring(0,URL.length() - 2))) > 0 );
+                        while (cVisited.countDocuments(new org.bson.Document(Definitions.kURL, URL)) > 0 || Unwanted_extension);
+                               //cVisited.countDocuments(new org.bson.Document(Definitions.kURL, URL + '/')) > 0 ||
+                               // cVisited.countDocuments(new org.bson.Document(Definitions.kURL, URL.substring(0,URL.length() - 2))) > 0 ||
 
                         // If there were 2 docs before pulling one, there should be one more.
                         if (toVisitCount > 2) mClient.notifyAll();
@@ -149,17 +161,20 @@ public class Spider extends Thread {
                         if (numActiveCrawlers > 1) {
                             try {
                                 numActiveCrawlers--;
-                                System.out.println(Thread.currentThread().getName() + ": No URLs available but at least " +
-                                        "one active crawler, waiting for its links...");
+                                if (Definitions.SECONDARY_CRAWLER_PRINT)
+                                    System.out.println(Thread.currentThread().getName() + ": No URLs available but at least " +
+                                            "one active crawler, waiting for its links...");
                                 mClient.wait();
                             } catch (InterruptedException e) {
-                                System.out.println(Thread.currentThread().getName() + " new URLs added, waking up...");
+                                if (Definitions.SECONDARY_CRAWLER_PRINT)
+                                    System.out.println(Thread.currentThread().getName() + " new URLs added, waking up...");
                                 e.printStackTrace();
                             }
                         } else {
                             numActiveCrawlers--;
-                            System.out.println(Thread.currentThread().getName() + ": No URLs available and no other " +
-                                    "active crawlers, terminating...");
+                            if (Definitions.SECONDARY_CRAWLER_PRINT)
+                                System.out.println(Thread.currentThread().getName() + ": No URLs available and no other " +
+                                        "active crawlers, terminating...");
                         }
                     }
                     return URL;
@@ -175,12 +190,10 @@ public class Spider extends Thread {
 
     public Definitions.RobotsAuth CheckAccessPermissions(String URL, StringBuilder uriHost) {
         Definitions.RobotsAuth status = Definitions.RobotsAuth.Granted; // bool that checks whether we can visit this page or not
-
         try {
             URI uri = new URI(URL);
             uriHost.append(uri.getHost());
             String uriPath = uri.getPath(), uriProtocol = uri.getScheme();
-
             // Extract the top domain name from the url
             String reg = "^[^.]*\\.(?=\\w+\\.\\w+$)";
 
@@ -215,13 +228,13 @@ public class Spider extends Thread {
                     robotsTxt = RobotsTxt.read(robotsTxtStream);
                 } catch (IOException e) {
 //                    System.out.format("Thread " + Thread.currentThread().getId() + ", URL: %s does not have a robots.txt file\n", uriHost);
-                    currentIterMessage.append(TopDomainName).append(" does not have a robots.txt file. ");
+                    if (Definitions.PRIMARY_CRAWLER_PRINT)
+                        currentIterMessage.append(TopDomainName).append(" does not have a robots.txt file. ");
                     return Definitions.RobotsAuth.Granted;
                 }
-
                 String[] splits = robotsTxt.toString().split("\\R");
-                boolean inside_general = false, inside_Sugoi = false;
 
+                boolean inside_general = false, inside_Sugoi = false;
                 for (String s : splits) {
                     //System.out.println(s);
                     // Check If the line I'm on is the start of the general rules
@@ -242,7 +255,8 @@ public class Spider extends Thread {
                             try {
                                 decoded_path = java.net.URLDecoder.decode(temp[1], StandardCharsets.UTF_8);
                             } catch (Exception e) {
-                                currentIterMessage.append("ERROR TRYING TO DECODE URL ").append(URL).append(" RETURNING ACCESS DENIED. ");
+                                if (Definitions.PRIMARY_CRAWLER_PRINT)
+                                    currentIterMessage.append("ERROR TRYING TO DECODE URL ").append(URL).append(" RETURNING ACCESS DENIED. ");
                                 return Definitions.RobotsAuth.Denied;
                             }
                             rules.add(decoded_path);
@@ -266,10 +280,13 @@ public class Spider extends Thread {
                         }
                     }
                 }
-                All_rules.put(TopDomainName, rules);
+                synchronized (All_rules) {
+                    All_rules.put(TopDomainName, rules);
+                }
             } else {
                 rules = All_rules.get(TopDomainName);
-                currentIterMessage.append("using ").append(TopDomainName).append("'s robots.txt. ");
+                if (Definitions.PRIMARY_CRAWLER_PRINT)
+                    currentIterMessage.append("using ").append(TopDomainName).append("'s robots.txt. ");
 //                System.out.println("Using the " + TopDomainName + " robots.txt");
             }
 
@@ -354,7 +371,8 @@ public class Spider extends Thread {
 
     // TODO: move MongoDB functionality into functions to avoid duplicate code.
     public void run() {
-        System.out.println("Crawler " + getName().toLowerCase(Locale.ROOT) + " Started");
+        if (Definitions.SECONDARY_CRAWLER_PRINT)
+            System.out.println("Crawler " + getName().toLowerCase(Locale.ROOT) + " Started");
 
         while (this.ShouldContinue()) {
             String URL;
@@ -371,14 +389,16 @@ public class Spider extends Thread {
 
                 switch (status) {
                     case Granted: {
-                        currentIterMessage.append("ACCESS GRANTED, PROCEEDING TO ").append(URL);
+                        if (Definitions.PRIMARY_CRAWLER_PRINT)
+                            currentIterMessage.append("ACCESS GRANTED, PROCEEDING TO ").append(URL);
 
                         StringBuilder downloadedHTML = new StringBuilder();
                         boolean downloadSuccessful = HTMLDownloader.DownloadPage(URL, downloadedHTML);
 
                         // Add the URL to the visited list if the page is downloaded
                         if (downloadSuccessful) {
-                            currentIterMessage.append(", download successful ");
+                            if (Definitions.PRIMARY_CRAWLER_PRINT)
+                                currentIterMessage.append(", download successful ");
 
                             // Insert the downloaded HTML into the URL-HTML hashMap. Then Extract links
                             org.bson.Document urlPage = new org.bson.Document(Definitions.kURL, URL).append("HTML", downloadedHTML.toString());
@@ -412,7 +432,8 @@ public class Spider extends Thread {
                         }
                         // If download unsuccessful, reinsert/upsert the URL back into toVisit
                         else {
-                            currentIterMessage.append(", download unsuccessful ");
+                            if (Definitions.PRIMARY_CRAWLER_PRINT)
+                                currentIterMessage.append(", download unsuccessful ");
                             if (!Definitions.USE_MONGO)
                                 toVisit.add(URL);
                             else
@@ -423,7 +444,8 @@ public class Spider extends Thread {
                     }
                     // If access denied, add it to deniedVisit
                     case Denied: {
-                        currentIterMessage.append("ACCESS DENIED to URL ").append(URL);
+                        if (Definitions.PRIMARY_CRAWLER_PRINT)
+                            currentIterMessage.append("ACCESS DENIED to URL ").append(URL);
                         if (!Definitions.USE_MONGO)
                             deniedVisit.add(URL);
                         else {
@@ -433,10 +455,11 @@ public class Spider extends Thread {
                     }
                 }
             }
-            if (currentIterMessage.length() > 0)
+            if (currentIterMessage.length() > 0 && Definitions.PRIMARY_CRAWLER_PRINT)
                 System.out.println(currentIterMessage);
         }
-        System.out.println("Crawler " + getName() + " terminating. Crawled over " + currentPageVisitCount + " pages");
+        if (Definitions.SECONDARY_CRAWLER_PRINT)
+            System.out.println("Crawler " + getName() + " terminating. Crawled over " + currentPageVisitCount + " pages");
     }
 
 }
