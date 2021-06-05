@@ -38,8 +38,16 @@ public class Indexer extends Thread {
     final static MongoCollection<Document> collectionLink = databaseindexer.getCollection("Links");
     //
 
-    public Indexer() {
+    Whitelist wl = new Whitelist();
+    String[] whitelistedTags = {"div", "h1", "h2", "h3", "h4", "h5", "h6", "p", "a",
+            "tt", "i", "b", "big", "small", "em", "strong", "dfn", "code", "samp", "kbd", "var", "cite",
+            "abbr", "acronym", "sub", "sup", "span", "bdo", "address", "object", "pre", "q", "ins", "del",
+            "dt", "dd", "li", "label", "option", "textarea", "fieldset", "legend", "button", "caption",
+            "td", "th", "title", "style", "head", "footer"};
 
+
+    public Indexer() {
+        wl.addTags(whitelistedTags);
     }
 
     public static void main(String argv[]) {
@@ -95,19 +103,24 @@ public class Indexer extends Thread {
 
             // select all tags and words from HTML page
             org.jsoup.nodes.Document jsoupsecnod;
-            jsoupsecnod = Jsoup.parse(HTML);
+            String text = Jsoup.clean(HTML.toString(), wl);
+            jsoupsecnod = Jsoup.parse(text);
             Elements elements = jsoupsecnod.select("*");
-            String text = Jsoup.clean(HTML.toString(), Whitelist.none());
+
 
             // only to get length to use it in TF
             String AllWords[] = stemmer.Spliter(text);
 
             int j = 0;
+            int ctr = 0;
             // get all elements
             for (Element e : elements) {
-
+                ctr++;
+                if (e.tagName().equals("footer"))
+                    break;
                 if (e.tagName().equals("header") || e.tagName().equals("footer") || e.tagName().equals("#root")
-                        || e.tagName().equals("code") || e.tagName().equals("script"))
+                        || e.tagName().equals("code") || e.tagName().equals("script") || e.tagName().equals("br") ||
+                        e.childNodeSize() != 1)
                     continue;
 
                 String[] words = stemmer.Spliter(e.text());
@@ -117,9 +130,11 @@ public class Indexer extends Thread {
 
                     // Find the position of the word with respect to the whole text
                     String eText = e.text();
-                    if (words[i] != null)
+                    if (words[i] != null) {
                         j = eText.indexOf(words[i], j);
-                    else continue;
+                        if (j < 0)
+                            continue;
+                    } else continue;
 
                     // choose to build from zero or update
                     if (Definitions.CHOOSE_INDEX) {

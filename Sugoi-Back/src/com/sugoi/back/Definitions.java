@@ -10,7 +10,7 @@ import org.bson.Document;
 
 // Please put application constants or config variables here.
 public class Definitions {
-    public static final int NUM_THREADS =4;
+    public static final int NUM_THREADS =12;
     public static final String seedFN = "./txt/seed.txt";
     public static final String visitedFN = "./txt/visited.txt";
     public static final String toVisitFN = "./txt/to_visit.txt";
@@ -19,7 +19,7 @@ public class Definitions {
     public static final String DENIED_SITES = "./txt/denied.txt";
     public static final boolean USE_MONGO = true;
     public static  Boolean CHOOSE_INDEX = true;
-    public static final int MAX_PAGES = 100; /// < Max number of pages the crawler is allowed to visit.
+    public static final int MAX_PAGES = 1200; /// < Max number of pages the crawler is allowed to visit.
     public static final boolean PRIMARY_CRAWLER_PRINT = true;
     public static final boolean SECONDARY_CRAWLER_PRINT = true;
 

@@ -319,8 +319,6 @@ public class Link {
                         Values.remove(count);
                         // add it to list to know what is the removed words
                         arr.add(Word);
-
-
                     }
                     count++;
 

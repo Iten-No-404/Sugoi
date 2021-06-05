@@ -15,6 +15,7 @@ import java.util.*;
 import java.net.URL;
 import java.util.List;
 import java.text.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -75,6 +76,7 @@ public class Spider extends Thread {
     final MongoClient mClient;
     // A place to store all the parsed robot.txt files that we'll be using
     Map<String, HashSet<String>> All_rules;
+    String iterStart;
     StringBuilder currentIterMessage = new StringBuilder();
     /// We don't want to insert the same URL twice into the visited list.
     MongoDatabase mongoDB;
@@ -87,12 +89,11 @@ public class Spider extends Thread {
     private List<String> toVisit = new LinkedList<>();
     private HashSet<String> deniedVisit = new HashSet<>();
 
-    private Integer currentPageVisitCount;
+    private AtomicInteger totalDownloaded;
     private Boolean abort = false;
 
     // Gets a reference to the MongoDB connection and a reference to its hashmap
-    public Spider(MongoClient client, Integer activeThreads, Map <String, HashSet<String>> rules) {
-        currentPageVisitCount = 0;
+    public Spider(MongoClient client, Integer activeThreads, AtomicInteger totPages, Map <String, HashSet<String>> rules) {
         mClient = client;
         numActiveCrawlers = activeThreads;
         All_rules = rules;
@@ -103,6 +104,8 @@ public class Spider extends Thread {
         cVisitedHosts = mongoDB.getCollection(Definitions.cVisitedHosts);
         cToVisit = mongoDB.getCollection(Definitions.cToVisit);
         cHTML = mongoDB.getCollection(Definitions.cHTML);
+
+        totalDownloaded = totPages;
     }
 
     // Finds and deletes a URL in one step
@@ -139,7 +142,7 @@ public class Spider extends Thread {
                             if (URL.contains(".webm") || URL.contains(".png") || URL.contains(".jpg") || URL.contains(".svg") || URL.contains(".jpeg") ||
                                     URL.contains(".mp4") || URL.contains(".mp3") || URL.contains(".mov") || URL.contains(".wav") || URL.contains(".wmv") ||
                                     URL.contains(".mkv") || URL.contains(".flv") || URL.contains(".avi") || URL.contains(".api") || URL.contains(".js") ||
-                                    URL.contains(".script"))
+                                    URL.contains(".script") || URL.contains(" ") || URL.contains(".pdf"))
                                 Unwanted_extension = true;
                             if (Unwanted_extension && Definitions.PRIMARY_CRAWLER_PRINT)
                                 System.out.println(URL + " does not point to an html page");
@@ -185,7 +188,7 @@ public class Spider extends Thread {
 
 
     public Boolean ShouldContinue() {
-        return currentPageVisitCount < Definitions.MAX_PAGES && !abort;
+        return totalDownloaded.get() < Definitions.MAX_PAGES && !abort;
     }
 
     public Definitions.RobotsAuth CheckAccessPermissions(String URL, StringBuilder uriHost) {
@@ -382,7 +385,8 @@ public class Spider extends Thread {
             // Can't say we visited this website...
             if (URL != null && !URL.equals("")) {
                 currentIterMessage.delete(0, currentIterMessage.length()); // Clear message
-                currentIterMessage.append(getName()).append("\t [").append(currentPageVisitCount).append("]: \t");
+                iterStart = getName() + "\t [";
+                currentIterMessage.append("\t]: \t");
 
                 StringBuilder uriHost = new StringBuilder();
                 Definitions.RobotsAuth status = CheckAccessPermissions(URL, uriHost);
@@ -428,7 +432,7 @@ public class Spider extends Thread {
                                         new org.bson.Document("$set", new org.bson.Document("URL", URL)), new UpdateOptions().upsert(true));
                             }
 
-                            currentPageVisitCount++;
+                            totalDownloaded.incrementAndGet();
                         }
                         // If download unsuccessful, reinsert/upsert the URL back into toVisit
                         else {
@@ -456,10 +460,10 @@ public class Spider extends Thread {
                 }
             }
             if (currentIterMessage.length() > 0 && Definitions.PRIMARY_CRAWLER_PRINT)
-                System.out.println(currentIterMessage);
+            {System.out.println(iterStart+totalDownloaded.getAcquire() + currentIterMessage);}
         }
         if (Definitions.SECONDARY_CRAWLER_PRINT)
-            System.out.println("Crawler " + getName() + " terminating. Crawled over " + currentPageVisitCount + " pages");
+            System.out.println("Crawler " + getName() + " terminating. Crawled over " + totalDownloaded + " pages");
     }
 
 }

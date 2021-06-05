@@ -7,6 +7,7 @@ import org.bson.BsonMaximumSizeExceededException;
 
 import java.io.FileInputStream;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /* TODO Create a URL queue to streamline and speedup crawler URL acquisition.
     It will work like this:
@@ -20,6 +21,7 @@ public class SpiderHive {
     Spider[] crawlers;
     MongoClient mClient;
     Map<String, HashSet<String>> All_rules = new HashMap<>();
+    AtomicInteger totalPages = new AtomicInteger(0);
     SpiderHive(int numThreads) {
 
         // MongoDB connection init
@@ -29,7 +31,7 @@ public class SpiderHive {
         crawlers = new Spider[numThreads];
 
         for (int i = 0; i < numThreads; i++) {
-            crawlers[i] = new Spider(mClient, activeThreads, All_rules);
+            crawlers[i] = new Spider(mClient, activeThreads, totalPages, All_rules);
         }
 
     }
@@ -92,7 +94,7 @@ public class SpiderHive {
         // We should have numThreads hashmaps with the websites each crawler has visited
         // }
         if (Definitions.SECONDARY_CRAWLER_PRINT)
-            System.out.println("Crawl finished. Approximately " + Definitions.NUM_THREADS*Definitions.MAX_PAGES + " links crawled in " + (endTime - startTime) / 1000 + " seconds with " + Definitions.NUM_THREADS
+            System.out.println("Crawl finished. Approximately " + totalPages + " links crawled in " + (endTime - startTime) / 1000 + " seconds with " + Definitions.NUM_THREADS
                 + " threads");
 
     }
