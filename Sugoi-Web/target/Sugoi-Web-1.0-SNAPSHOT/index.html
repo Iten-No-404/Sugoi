@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="../Interface/Main.css">
+    <link rel="stylesheet" href="./Interface/Main.css">
     <script src="https://kit.fontawesome.com/a076d05399.js"></script>
     <title>Sugoi Search Home</title>
 </head>
@@ -11,14 +11,14 @@
 <body onload="readsuggestions();">
     <div class="search-bar">
         <div class="logo-holder">
-            <a href="./Interface/Main.html">
+            <a href="index.html">
                 <img src="./Logo.png" class="logo" alt="Sugoi Logo">
             </a>
         </div>
         <br>
-        <form action= "Search" method="get" id="search-form">
+        <form action="Search" method="GET" id="search-form">
             <div class="bar-holder">
-                <input type="text" class="search-bar-input" placeholder="Type to Search..">
+                <input name="search-text" type="text" class="search-bar-input" placeholder="Type to Search..">
                 <div class="suggestions-com">
                 </div>
                 <a>
@@ -43,7 +43,7 @@
         <div class="extra-padding"></div>
     </div>
     
-    <script src="../Interface/Main.js"></script>
+    <script src="./Interface/Main.js"></script>
 
 </body>
 

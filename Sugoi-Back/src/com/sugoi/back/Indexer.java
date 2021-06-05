@@ -77,7 +77,7 @@ public class Indexer extends Thread {
         // TODO: remove if & else from here if you will use Thread !!!!!!!!!!!!!!!!!!!!!!!!!!!! SO Important
         // I really don't understand why?
 
-        Iterator it = cHTMLIndexed.find(new Document()).iterator();
+//        Iterator it = cHTMLIndexed.find(new Document()).iterator();
 
         while (cHTMLUnindexed.countDocuments() > 0) {
             // connect to link
@@ -106,7 +106,8 @@ public class Indexer extends Thread {
             // get all elements
             for (Element e : elements) {
 
-                if (e.tagName().equals("header") || e.tagName().equals("footer") || e.tagName().equals("#root"))
+                if (e.tagName().equals("header") || e.tagName().equals("footer") || e.tagName().equals("#root")
+                        || e.tagName().equals("code") || e.tagName().equals("script"))
                     continue;
 
                 String[] words = stemmer.Spliter(e.text());
@@ -131,7 +132,7 @@ public class Indexer extends Thread {
                         //System.out.println("i am updating");
                         Update_Indexer(URL, e.tagName(), j, words[i], AllWords.length);
                     }
-                    j++;
+
                 }
 
 

@@ -107,22 +107,25 @@ public class QueryProcess {
                         Boolean found = false;
 
                         for (int k = 0; k < words.length; k++) {
+                            if(words[k] != null && !e.text().contains(words[k])) continue;
+
                             if (words[k] != null)
                                 words[k] = stemmer1.PorterStemming(words[k]);
+
                             if (words[k] != null)
                                 if (words[k].equals(word)) {
                                     // if you found snipp  add it to paragraph
                                     // one paragraph is enough
 
-                                    paragraphs.add(e.text());
-
                                     // Check for first occurrence
                                     int firstOccurence = (int)positions.get(0).get("index");
 
                                     // Get the paragraph from the first occurrence to 800 chars or the length of the paragraph
-                                    int pLength = paragraphs.get(count).length();
-                                    int minEnd = Math.min(pLength, 800);
-                                    String paragraph = paragraphs.get(count).substring(firstOccurence,pLength );
+                                    int pLength = e.text().length();
+                                    int minEnd = Math.min(pLength, firstOccurence+800);
+                                    String paragraph = e.text().substring(firstOccurence,minEnd );
+
+                                    paragraphs.add(paragraph);
 
                                     System.out.println(paragraph);
                                     found = true;
