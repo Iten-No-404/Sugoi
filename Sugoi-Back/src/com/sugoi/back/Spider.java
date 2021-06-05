@@ -13,6 +13,8 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.net.URL;
+import java.util.List;
+import java.text.*;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -131,7 +133,9 @@ public class Spider extends Thread {
                             URL = (String) cToVisit.findOneAndDelete(new org.bson.Document()).get(Definitions.kURL);
                         }
                         // Continue getting and removing a URL if it's already visited
-                        while (cVisited.countDocuments(new org.bson.Document(Definitions.kURL, URL)) > 0);
+                        while (cVisited.countDocuments(new org.bson.Document(Definitions.kURL, URL)) > 0 ||
+                               cVisited.countDocuments(new org.bson.Document(Definitions.kURL, URL + '/')) > 0 ||
+                                cVisited.countDocuments(new org.bson.Document(Definitions.kURL, URL.substring(0,URL.length() - 2))) > 0 );
 
                         // If there were 2 docs before pulling one, there should be one more.
                         if (toVisitCount > 2) mClient.notifyAll();
@@ -164,7 +168,6 @@ public class Spider extends Thread {
         }
     }
 
-    // TODO: Work on the recrawl frequency
 
     public Boolean ShouldContinue() {
         return currentPageVisitCount < Definitions.MAX_PAGES && !abort;
@@ -179,14 +182,11 @@ public class Spider extends Thread {
             String uriPath = uri.getPath(), uriProtocol = uri.getScheme();
 
             // Extract the top domain name from the url
-            // TODO: deal cases where websites have % in their links
-            // TODO: Maybe work more on robots.txt
             String reg = "^[^.]*\\.(?=\\w+\\.\\w+$)";
 
             String TopDomainName = uriHost.toString();
             TopDomainName = TopDomainName.replaceAll(reg, "");
 
-            // TODO: Look into other robot.txt parsers
             /*
              * Since the library seems to be off? (test with facebook and youtube's home pages,
              * fb should block while yt should let the crawler through)
@@ -316,7 +316,7 @@ public class Spider extends Thread {
         // Then we parse it for all the links and references in it
         Document currentDoc = null;
         try {
-            // TODO: Check if the link being for mobile matters (same with navigation stuff)
+            // TODO: Check if the link being for mobile matters -- Can't do it for mobile view links as they can be very different
             // Parse function parses the current document for all the elements (links, images, etc..)
             // The first two arguments are simple
             // the third argument is used in case of linking to another part of the website
@@ -341,8 +341,13 @@ public class Spider extends Thread {
             for (Element link : links) {
                 String attr = link.attr("abs:href");
                 // For some reason, the attr function returned empty strings
-                if (!attr.equals(""))
+                if (!attr.equals("")) {
+                    // Before adding the link, remove all navigation hashes (#) from it
+                    int con = attr.indexOf("#");
+                    if (con != -1)
+                        attr = attr.split("#")[0]; // select the first part before the #
                     pageLinks.add(attr);
+                }
             }
         return pageLinks;
     }
@@ -357,7 +362,7 @@ public class Spider extends Thread {
 
             // If for some reason the URL is null, skip this iteration
             // Can't say we visited this website...
-            if (URL != null && !URL.equals("")) { // TODO: Look more into URIs
+            if (URL != null && !URL.equals("")) {
                 currentIterMessage.delete(0, currentIterMessage.length()); // Clear message
                 currentIterMessage.append(getName()).append("\t [").append(currentPageVisitCount).append("]: \t");
 
