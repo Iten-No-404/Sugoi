@@ -1,16 +1,23 @@
 import java.io.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
+import javax.servlet.*;
 
 @WebServlet(name = "SearchServlet", value = "/Search")
 public class SearchServlet extends HttpServlet {
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    String[] URLs = {"https://www.w3schools.com/java/java_arrays.asp", "https://randomwordgenerator.com/paragraph.php"};
+    String[] Titles = {"Java Arrays","Paragraph Generator"};
+    String[] Paragraphs = {"She never liked cleaning the sink. It was beyond her comprehension how it got so dirty so quickly. It seemed that she was forced to clean it every other day. Even when she was extra careful to keep things clean and orderly, it still ended up looking like a mess in a couple of days. What she didn't know was there was a tiny creature living in it that didn't like things neat.", "The amber droplet hung from the branch, reaching fullness and ready to drop. It waited. While many of the other droplets were satisfied to form as big as they could and release, this droplet had other plans. It wanted to be part of history. It wanted to be remembered long after all the other droplets had dissolved into history. So it waited for the perfect specimen to fly by to trap and capture that it hoped would eventually be discovered hundreds of years in the future."};
+
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws  ServletException,IOException {
         response.setContentType("text/html");
         String searchInput = request.getParameter("search-text");
         String[] searchWord = searchInput.split(" ");
-        String resultsPage = FillResultsPage("This is a tomcat test!");
-        response.getWriter().println(resultsPage);
+        //String resultsPage = FillResultsPage("This is a tomcat test!");
+        RequestDispatcher rd=request.getRequestDispatcher("sendthis.jsp");
+        rd.forward(request, response);//method may be include or forward
+        //response.getWriter().println(resultsPage);
     }
 
     String FillResult(String url, String title, String snippet) {
@@ -25,11 +32,11 @@ public class SearchServlet extends HttpServlet {
 
     String FillResultsPage(String allResults) {
 
-        String[] URLs = {"https://www.w3schools.com/java/java_arrays.asp", "https://randomwordgenerator.com/paragraph.php"};
-        String[] Titles = {"Java Arrays","Paragraph Generator"};
-        String[] Paragraphs = {"She never liked cleaning the sink. It was beyond her comprehension how it got so dirty so quickly. It seemed that she was forced to clean it every other day. Even when she was extra careful to keep things clean and orderly, it still ended up looking like a mess in a couple of days. What she didn't know was there was a tiny creature living in it that didn't like things neat.", "The amber droplet hung from the branch, reaching fullness and ready to drop. It waited. While many of the other droplets were satisfied to form as big as they could and release, this droplet had other plans. It wanted to be part of history. It wanted to be remembered long after all the other droplets had dissolved into history. So it waited for the perfect specimen to fly by to trap and capture that it hoped would eventually be discovered hundreds of years in the future."};
-        return "<!DOCTYPE html>\n" +
-                "<html lang=\"en\">\n" +
+        //String[] URLs = {"https://www.w3schools.com/java/java_arrays.asp", "https://randomwordgenerator.com/paragraph.php"};
+        //String[] Titles = {"Java Arrays","Paragraph Generator"};
+        //String[] Paragraphs = {"She never liked cleaning the sink. It was beyond her comprehension how it got so dirty so quickly. It seemed that she was forced to clean it every other day. Even when she was extra careful to keep things clean and orderly, it still ended up looking like a mess in a couple of days. What she didn't know was there was a tiny creature living in it that didn't like things neat.", "The amber droplet hung from the branch, reaching fullness and ready to drop. It waited. While many of the other droplets were satisfied to form as big as they could and release, this droplet had other plans. It wanted to be part of history. It wanted to be remembered long after all the other droplets had dissolved into history. So it waited for the perfect specimen to fly by to trap and capture that it hoped would eventually be discovered hundreds of years in the future."};
+        return "<%@ page contentType=\"text/html;charset=UTF-8\" language=\"java\" %>\n" +
+                "<html>\n" +
                 "\n" +
                 "<head>\n" +
                 "    <meta charset=\"UTF-8\">\n" +
