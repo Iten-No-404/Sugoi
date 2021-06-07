@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.ArrayList;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import javax.servlet.*;
@@ -13,10 +14,43 @@ public class SearchServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws  ServletException,IOException {
         response.setContentType("text/html");
         String searchInput = request.getParameter("search-text");
-        String[] searchWord = searchInput.split(" ");
+        //String[] searchWord = searchInput.split(" ");
+        QueryProcess myQuery = new QueryProcess();
+        myQuery.Query(searchInput);
+
         //String resultsPage = FillResultsPage("This is a tomcat test!");
+        PrintWriter out = response.getWriter();
+        out.println("<!DOCTYPE html>");
+        out.println("<html>");
+        out.println("<head>");
+        out.println("<title>Servlet StudentServlet</title>");
+        out.println("</head>");
+        out.println("<body>");
+        ArrayList<String> URLs = new ArrayList<String>();
+        URLs = myQuery.urls;
+        //URLs.add("https://www.w3schools.com/java/java_arrays.asp");
+        //URLs.add("https://randomwordgenerator.com/paragraph.php");
+        //URLs.add("https://www.w3schools.com/");
+        //URLs.add("https://randomwordgenerator.com/");
+        request.setAttribute("data",URLs);
+        ArrayList<String> Titles = new ArrayList<String>();
+        //Titles.add("w3schools");
+        //Titles.add("randomwordgenerator");
+        //Titles.add("w3schoolsfheufheuk");
+        //Titles.add("randomwordgeneratorvdetuedgwucjwui");
+        Titles = myQuery.titles;
+        request.setAttribute("data2",Titles);
+        ArrayList<String> Paragraphs = new ArrayList<String>();
+        //Paragraphs.add("She didn't understand how changed worked. When she looked at today compared to yesterday, there was nothing that she could see that was different. Yet, when she looked at today compared to last year, she couldn't see how anything was ever the same.");
+        //Paragraphs.add("It was difficult for him to admit he was wrong. He had been so certain that he was correct and the deeply held belief could never be shaken. Yet the proof that he had been incorrect stood right before his eyes. \"See daddy, I told you that they are real!\" his daughter excitedly proclaimed.");
+        //Paragraphs.add("He was an expert but not in a discipline that anyone could fully appreciate. He knew how to hold the cone just right so that the soft server ice-cream fell into it at the precise angle to form a perfect cone each and every time. It had taken years to perfect and he could now do it without even putting any thought behind it. Nobody seemed to fully understand the beauty of this accomplishment except for the new worker who watched in amazement.");
+        //Paragraphs.add("At that moment he had a thought that he'd never imagine he'd consider. \"I could just cheat,\" he thought, \"and that would solve the problem.\" He tried to move on from the thought but it was persistent. It didn't want to go away and, if he was honest with himself, he didn't want it to.");
+        Paragraphs = myQuery.paragraphs;
+        request.setAttribute("data3",Paragraphs);
         RequestDispatcher rd=request.getRequestDispatcher("sendthis.jsp");
         rd.forward(request, response);//method may be include or forward
+        out.println("</body>");
+        out.println("</html>");
         //response.getWriter().println(resultsPage);
     }
 

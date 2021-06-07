@@ -29,7 +29,7 @@ let urlParams;
 function loadpage() {
     urlParams = parseURLParams(urlString);
     readsuggestions();
-    CreateResults();
+    //CreateResults();
     console.log("Query= " + urlParams['q']);
     console.log("Current Page= " + urlParams['page']);
     page = parseInt(urlParams['page'][0]);

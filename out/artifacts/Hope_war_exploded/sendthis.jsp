@@ -6,6 +6,7 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@page import="java.util.ArrayList"%>
 <html>
 
 <head>
@@ -43,6 +44,17 @@
 
 <div class="search-results">
 
+    <%  // this is Java, run when the page is generated
+        ArrayList<String> urls = (ArrayList<String>)request.getAttribute("data");
+        ArrayList<String> titles = (ArrayList<String>)request.getAttribute("data2");
+        ArrayList<String> para = (ArrayList<String>)request.getAttribute("data3");
+        for (int i=0; i< urls.size(); i++)
+        {
+    %>
+    <div class="result"> <a href="<%= urls.get(i) %>"><h2><%= titles.get(i) %></h2></a> <p><%= para.get(i) %></p></div>
+    <%
+        }
+    %>
 </div>
 
 <div class="pagination">
@@ -57,27 +69,6 @@
     </div>
 </div> -->
 
-<script language='javascript'>
-    let Urls = {};
-    let Titles = {};
-    let Paragraphs = {};
-    
-    <%  // this is Java, run when the page is generated
-      String[] urls = (String[])session.getAttribute("URLs");
-      String[] titles = (String[])session.getAttribute("Titles");
-      String[] para = (String[])session.getAttribute("Paragraphs");
-      for (int i = 0; i < urls.length; i++)
-      {
-    %>
-    // this is Javascript, built when the page is generated
-    // and run when the page us displayed by the browser
-    Urls["<%= i %>"] = "<%= urls[i] %>"
-    Titles["<%= i %>"] = "<%= titles[i] %>"
-    Paragraphs["<%= i %>"] = "<%= para[i] %>"
-    <%
-      }
-    %>
-</script>
 <script src="https://code.jquery.com/jquery-1.10.2.js" type="text/javascript"></script>
 <script src="app-ajax.js" type="text/javascript"></script>
 <script src="Main.js"></script>
