@@ -82,7 +82,7 @@ public class Spider extends Thread {
     MongoDatabase mongoDB;
     MongoCollection<org.bson.Document> cToVisit, cVisited, cDeniedVisit, cVisitedHosts, cHTML;
     private Integer numActiveCrawlers;
-
+    public Document currentDoc;
     // TODO Remove these once we're fully using MongoDB
     private HashSet<String> visited = new HashSet<>();
     private HashSet<String> visitedHosts = new HashSet<>();
@@ -327,6 +327,8 @@ public class Spider extends Thread {
             e.printStackTrace();
         }
 
+
+
         return status;
     }
 
@@ -334,7 +336,7 @@ public class Spider extends Thread {
         // This part handles extracting the links from the downloaded page
         // We first open the downloaded document
         // Then we parse it for all the links and references in it
-        Document currentDoc = null;
+
         try {
             // TODO: Check if the link being for mobile matters -- Can't do it for mobile view links as they can be very different
             // Parse function parses the current document for all the elements (links, images, etc..)
@@ -347,16 +349,17 @@ public class Spider extends Thread {
             // and in the case of /wiki/<anything here> we the third argument is put before it
             // so it becomes wikipedia.com/wiki/ <anything here>
 
-            currentDoc = Jsoup.parse(HTML/*, "UTF-8"*/);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
         // here we extract the links from the parsed document
         Elements links = null;
-        if (currentDoc != null)
-            links = currentDoc.select("a[href]");
-        // We insert them in a hashset because sometimes, we can extract the same link multiple times
         List<String> pageLinks = new ArrayList<>();
+        if (currentDoc != null) {
+            links = currentDoc.select("a[href]");
+        }
+        // We insert them in a hashset because sometimes, we can extract the same link multiple times
         if (links != null)
             for (Element link : links) {
                 String attr = link.attr("abs:href");
@@ -405,9 +408,16 @@ public class Spider extends Thread {
                                 currentIterMessage.append(", download successful ");
 
                             // Insert the downloaded HTML into the URL-HTML hashMap. Then Extract links
-                            org.bson.Document urlPage = new org.bson.Document(Definitions.kURL, URL).append("HTML", downloadedHTML.toString());
-                            cHTML.insertOne(urlPage);
-
+                            currentDoc = Jsoup.parse(downloadedHTML.toString()/*, "UTF-8"*/);
+                            if (currentDoc != null && currentDoc.select("html").first() != null &&
+                                    !currentDoc.select("html").first().attr("lang").equals("en"))
+                            {
+                                // DO nothing
+                            }
+                            else {
+                                org.bson.Document urlPage = new org.bson.Document(Definitions.kURL, URL).append("HTML", downloadedHTML.toString());
+                                cHTML.insertOne(urlPage);
+                            }
                             List<String> extractedLinks = ExtractLinks(downloadedHTML.toString());
 
                             if (!Definitions.USE_MONGO) {
