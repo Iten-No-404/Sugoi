@@ -351,13 +351,19 @@ public class Spider extends Thread {
             e.printStackTrace();
         }
         // here we extract the links from the parsed document
-        Elements links = null;
-        if (currentDoc != null)
-            links = currentDoc.select("a[href]");
-        // We insert them in a hashset because sometimes, we can extract the same link multiple times
         List<String> pageLinks = new ArrayList<>();
+        Elements links = null;
+        if (currentDoc != null) {
+            Element lan = currentDoc.select("html").first();
+            if (lan.attr("lang") != null && !lan.attr("lang").equals("en"))
+                return pageLinks;
+            links = currentDoc.select("a[href]");
+        }
+        // We insert them in a hashset because sometimes, we can extract the same link multiple times
+
         if (links != null)
             for (Element link : links) {
+
                 String attr = link.attr("abs:href");
                 // For some reason, the attr function returned empty strings
                 if (!attr.equals("")) {
