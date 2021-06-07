@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import org.jsoup.select.Elements;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.*;
-
 import com.sugoi.back.Stemmer;
 
 public class QueryProcess {
@@ -68,12 +67,12 @@ public class QueryProcess {
             // get URLS of words
             ArrayList<Document> links = (ArrayList<Document>) doc.get("docs");
 
-            for (int i = 0; i < RESULTS_PER_PAGE && i < links.size(); i++) {
+            for (int i = 0;  i < links.size(); i++) {
                 // loops on every ulr
                 String URL = (String) links.get(i).get("doc");
                 // get positions to get tags
                 ArrayList<Document> positions = (ArrayList<Document>) links.get(i).get("positions");
-                if (positions.size() > 1) {
+                if (positions.size() >= 1) {
 
                     // check if the word is found in tags but not in #root " not good tag"
                     Document index = positions.get(0);
@@ -123,8 +122,13 @@ public class QueryProcess {
                                     // Get the paragraph from the first occurrence to 800 chars or the length of the paragraph
                                     int pLength = e.text().length();
                                     int minEnd = Math.min(pLength, firstOccurence+800);
-                                    String paragraph = e.text().substring(firstOccurence,minEnd );
-
+                                    String paragraph;
+                                    if (minEnd > firstOccurence)
+                                        paragraph = e.text().substring(firstOccurence,minEnd );
+                                    else
+                                    {
+                                        continue;
+                                    }
                                     paragraphs.add(paragraph);
 
                                     System.out.println(paragraph);

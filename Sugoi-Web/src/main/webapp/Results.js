@@ -22,13 +22,14 @@ function parseURLParams(url) {
 const element = document.querySelector(".pagination ul");
 let totalPages = 20;
 let page = 1;
-var urlString = window.location.search;
-var urlParams = parseURLParams(urlString);
+let urlString = window.location.search;
+let urlParams;
 
 
 function loadpage() {
+    urlParams = parseURLParams(urlString);
     readsuggestions();
-    CreateResults();
+    //CreateResults();
     console.log("Query= " + urlParams['q']);
     console.log("Current Page= " + urlParams['page']);
     page = parseInt(urlParams['page'][0]);
@@ -105,19 +106,19 @@ function movetopage(newpagenum) {
 }
 
 function CreateResults() {
-    var template = "<\div class=\"result\">\n" +
-        "                <a href=\"\">\n" +
-        "                    <\h2></h2>\n" +
-        "                </a>\n" +
-        "                <\p></p>\n" +
-        "            </div>";
-
-    var min = min(urls.length, 10);
-    for (int i = 0;
-    i < min
-    i++
-)
+    var min = min(Urls.length, 10);
+    var resultselement = document.querySelector(".search-results");
+    var allresults='';
+    console.log(Urls);
+    console.log(Titles);
+    console.log(Paragraphs);
+    console.log("Min = "+min);
+    for (i = 0; i < min; i++)
     {
-
+        var template = `<div class="result">` + `<a href="`+ Urls[i]+ `"><h2>`+Titles[i]+`</h2>></a>`;
+        template+= `<p>`+Paragraphs[i]+`</p></div>`;
+        console.log(template);
+        allresults +=template;
     }
+    resultselement.innerHTML= allresults;
 }
