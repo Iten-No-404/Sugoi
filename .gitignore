@@ -1,0 +1,6 @@
+
+*.HTML
+Sugoi-Back/out/*
+Sugoi-Web/out/*
+Sugoi-Web/target/*
+Xtra/*

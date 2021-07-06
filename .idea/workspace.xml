@@ -1,200 +1,155 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="ArtifactsWorkspaceSettings">
-    <artifacts-to-build>
-      <artifact name="Hope:war exploded" />
-    </artifacts-to-build>
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="82fa5ae7-2173-4e90-906f-53daaea22207" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/jsoup_1_13_1.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/jsoup_1_13_1.xml" afterDir="false" />
+    <list default="true" id="619be50d-99f5-4883-b976-c0bb26b42523" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Sugoi.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Xtra/Hope.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/artifacts/Hope_war_exploded.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/jsoup_1_13_1.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Hope.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Hope.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Hope/META-INF/Hope.kotlin_module" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Hope/SearchServlet.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Hope/SearchServlet.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Hope/Spider$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Hope/Spider$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Hope/Spider.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Hope/Spider.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/SearchServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/SearchServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Spider.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Spider.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Hope.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/jsoup-1.13.1.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mongo-java-driver-3.12.8.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/Logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/Main.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/Main.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/Results.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/Results.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/Results.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/Suggestions.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/WEB-INF/classes/Definitions$RobotsAuth.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/WEB-INF/classes/Definitions.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/WEB-INF/classes/HTMLDownloader.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/WEB-INF/classes/Indexer.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/WEB-INF/classes/Link.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/WEB-INF/classes/META-INF/Hope.kotlin_module" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/WEB-INF/classes/Main.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/WEB-INF/classes/QueryProcess.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/WEB-INF/classes/SearchServlet.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/WEB-INF/classes/Spider$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/WEB-INF/classes/Spider.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/WEB-INF/classes/SpiderHive.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/WEB-INF/classes/Stemmer.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/WEB-INF/classes/Word.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/WEB-INF/lib/jsoup-1.13.1.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/WEB-INF/lib/mongo-java-driver-3.12.8.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/WEB-INF/lib/robots-1.4.5.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/WEB-INF/web.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/app-ajax.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/index.jsp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Hope_war_exploded/sendthis.jsp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Hope/Definitions$RobotsAuth.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Hope/Definitions.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Hope/HTMLDownloader.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Hope/Indexer.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Hope/Link.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Hope/QueryProcess.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Hope/SearchServlet.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Hope/Spider$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Hope/Spider.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Hope/SpiderHive.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Hope/Stemmer.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Hope/Word.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/robots-1.4.5.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Definitions.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/HTMLDownloader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Indexer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Link.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/QueryProcess.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/SearchServlet.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Spider.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/SpiderHive.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Stemmer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Word.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Main.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Main.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Results.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Results.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Results.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Suggestions.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/WEB-INF/web.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/app-ajax.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/sendthis.jsp" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="HTML File" />
-        <option value="CSS File" />
-        <option value="Jsp File" />
-        <option value="JavaScript File" />
-        <option value="Class" />
-      </list>
-    </option>
-  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="LogFilters">
-    <option name="FILTER_ERRORS" value="false" />
-    <option name="FILTER_WARNINGS" value="false" />
-    <option name="FILTER_INFO" value="true" />
-    <option name="FILTER_DEBUG" value="true" />
-    <option name="CUSTOM_FILTER" />
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
   </component>
-  <component name="ProjectId" id="1tbU5Lo1BPbICeet5b4LJTuHK7K" />
+  <component name="ProjectId" id="1uwLQyYE3OduiM6jbNjUBjwc46X" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
+    <option name="showMembers" value="true" />
   </component>
   <component name="PropertiesComponent">
-    <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/robots-1.4.5.jar" />
-    <property name="list.type.of.created.stylesheet" value="CSS" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/Sugoi-Back/lib" />
     <property name="project.structure.last.edited" value="Libraries" />
-    <property name="project.structure.proportion" value="0.12087911" />
+    <property name="project.structure.proportion" value="0.25723222" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="preferences.applicationServers" />
+    <property name="settings.editor.selected.configurable" value="configurable.group.language" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="E:\College CUFE 2023\Hope\web" />
+      <recent name="$PROJECT_DIR$/Sugoi-Back/lib" />
+      <recent name="$PROJECT_DIR$/Sugoi-Back/src" />
+      <recent name="$PROJECT_DIR$/Sugoi-Web/src" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="com.sugoi.back" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.SpiderHive">
-    <configuration name="Linker" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="Link" />
-      <module name="Hope" />
+  <component name="RunManager">
+    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
+      <option name="arquillianRunConfiguration">
+        <value>
+          <option name="containerStateName" value="" />
+        </value>
+      </option>
+      <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="SpiderHive" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="SpiderHive" />
-      <module name="Hope" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Tomcat 7.0.109" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat 7.0.109" ALTERNATIVE_JRE_ENABLED="false">
-      <option name="OPEN_IN_BROWSER_URL" value="http://localhost:8080/Main/" />
-      <deployment>
-        <artifact name="Hope:war exploded">
-          <settings>
-            <option name="CONTEXT_PATH" value="/Main" />
-          </settings>
-        </artifact>
-      </deployment>
-      <server-settings>
-        <option name="BASE_DIRECTORY_NAME" value="Tomcat_7_0_109_Hope" />
-      </server-settings>
-      <predefined_log_file enabled="true" id="Tomcat" />
-      <predefined_log_file enabled="true" id="Tomcat Catalina" />
-      <predefined_log_file id="Tomcat Manager" />
-      <predefined_log_file id="Tomcat Host Manager" />
-      <predefined_log_file id="Tomcat Localhost Access" />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="60339" />
-      </RunnerSettings>
-      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Cover">
-        <option name="USE_ENV_VARIABLES" value="true" />
-        <STARTUP>
-          <option name="USE_DEFAULT" value="true" />
-          <option name="SCRIPT" value="" />
-          <option name="VM_PARAMETERS" value="" />
-          <option name="PROGRAM_PARAMETERS" value="" />
-        </STARTUP>
-        <SHUTDOWN>
-          <option name="USE_DEFAULT" value="true" />
-          <option name="SCRIPT" value="" />
-          <option name="VM_PARAMETERS" value="" />
-          <option name="PROGRAM_PARAMETERS" value="" />
-        </SHUTDOWN>
-      </ConfigurationWrapper>
-      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Debug">
-        <option name="USE_ENV_VARIABLES" value="true" />
-        <STARTUP>
-          <option name="USE_DEFAULT" value="true" />
-          <option name="SCRIPT" value="" />
-          <option name="VM_PARAMETERS" value="" />
-          <option name="PROGRAM_PARAMETERS" value="" />
-        </STARTUP>
-        <SHUTDOWN>
-          <option name="USE_DEFAULT" value="true" />
-          <option name="SCRIPT" value="" />
-          <option name="VM_PARAMETERS" value="" />
-          <option name="PROGRAM_PARAMETERS" value="" />
-        </SHUTDOWN>
-      </ConfigurationWrapper>
-      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Profile">
-        <option name="USE_ENV_VARIABLES" value="true" />
-        <STARTUP>
-          <option name="USE_DEFAULT" value="true" />
-          <option name="SCRIPT" value="" />
-          <option name="VM_PARAMETERS" value="" />
-          <option name="PROGRAM_PARAMETERS" value="" />
-        </STARTUP>
-        <SHUTDOWN>
-          <option name="USE_DEFAULT" value="true" />
-          <option name="SCRIPT" value="" />
-          <option name="VM_PARAMETERS" value="" />
-          <option name="PROGRAM_PARAMETERS" value="" />
-        </SHUTDOWN>
-      </ConfigurationWrapper>
-      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Run">
-        <option name="USE_ENV_VARIABLES" value="true" />
-        <STARTUP>
-          <option name="USE_DEFAULT" value="true" />
-          <option name="SCRIPT" value="" />
-          <option name="VM_PARAMETERS" value="" />
-          <option name="PROGRAM_PARAMETERS" value="" />
-        </STARTUP>
-        <SHUTDOWN>
-          <option name="USE_DEFAULT" value="true" />
-          <option name="SCRIPT" value="" />
-          <option name="VM_PARAMETERS" value="" />
-          <option name="PROGRAM_PARAMETERS" value="" />
-        </SHUTDOWN>
-      </ConfigurationWrapper>
-      <method v="2">
-        <option name="Make" enabled="true" />
-        <option name="BuildArtifacts" enabled="true">
-          <artifact name="Hope:war exploded" />
-        </option>
-      </method>
-    </configuration>
-    <list>
-      <item itemvalue="Application.Linker" />
-      <item itemvalue="Application.SpiderHive" />
-      <item itemvalue="Tomcat Server.Tomcat 7.0.109" />
-    </list>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Application.SpiderHive" />
-      </list>
-    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
-  <component name="SvnConfiguration">
-    <configuration />
-  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="82fa5ae7-2173-4e90-906f-53daaea22207" name="Default Changelist" comment="" />
-      <created>1623037097070</created>
+      <changelist id="619be50d-99f5-4883-b976-c0bb26b42523" name="Default Changelist" comment="" />
+      <created>1625571692390</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1623037097070</updated>
-      <workItem from="1623037100773" duration="26801000" />
-      <workItem from="1623082917494" duration="1463000" />
+      <updated>1625571692390</updated>
+      <workItem from="1625571693790" duration="639000" />
+      <workItem from="1625572338973" duration="125000" />
+      <workItem from="1625572479607" duration="524000" />
     </task>
     <servers />
   </component>
@@ -211,5 +166,6 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
 </project>

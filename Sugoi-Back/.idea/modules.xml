@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Sugoi.iml" filepath="$PROJECT_DIR$/Sugoi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Sugoi-Back.iml" filepath="$PROJECT_DIR$/Sugoi-Back.iml" />
     </modules>
   </component>
 </project>
